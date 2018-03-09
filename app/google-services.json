@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "888680034369",
+    "firebase_url": "https://silence-ee124.firebaseio.com",
+    "project_id": "silence-ee124",
+    "storage_bucket": "silence-ee124.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:888680034369:android:49b52e73904caa0c",
+        "android_client_info": {
+          "package_name": "com.ilusons.silence"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "888680034369-5r3rdi65bj42nmbgglmvrnb5taoafhgf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaBZ-QcOLzmmzD2O6JOxxsg5iI_SU2URM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
