@@ -2,9 +2,17 @@ package com.ilusons.silence.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.util.Log;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryDataEventListener;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ilusons.silence.BuildConfig;
@@ -18,6 +26,12 @@ public final class DB {
 
 	public static FirebaseDatabase getFirebaseDatabase() {
 		return FirebaseDatabase.getInstance(BuildConfig.DEBUG ? "testing" : "production");
+	}
+
+	public static GeoFire getGeoFireDatabase() {
+		DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("geo");
+		GeoFire geoFire = new GeoFire(databaseReference);
+		return geoFire;
 	}
 
 	//endregion
@@ -96,6 +110,54 @@ public final class DB {
 							onError.execute(new Exception(databaseError.getMessage()));
 					}
 				});
+	}
+
+	public static void setUserLocation(Context context, User user, Location location) {
+		GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
+
+		GeoFire geoFire = getGeoFireDatabase();
+
+		geoFire.setLocation(user.Id, geoLocation);
+	}
+
+	public static GeoQuery getUsersAtLocation(Context context, Location location, JavaEx.ActionT<User> onUser) {
+		GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
+
+		GeoFire geoFire = getGeoFireDatabase();
+
+		GeoQuery geoQuery = geoFire.queryAtLocation(geoLocation, 5000);
+
+		geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+			@Override
+			public void onKeyEntered(String key, GeoLocation location) {
+				Log.d("geoFire", String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
+
+				LatLng pos = new LatLng(location.latitude, location.longitude);
+
+			}
+
+			@Override
+			public void onKeyExited(String key) {
+
+			}
+
+			@Override
+			public void onKeyMoved(String key, GeoLocation location) {
+
+			}
+
+			@Override
+			public void onGeoQueryReady() {
+
+			}
+
+			@Override
+			public void onGeoQueryError(DatabaseError error) {
+
+			}
+		});
+
+		return geoQuery;
 	}
 
 	//endregion
