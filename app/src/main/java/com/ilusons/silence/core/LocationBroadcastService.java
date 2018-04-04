@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.ilusons.silence.data.DB;
 
 public class LocationBroadcastService extends Service implements
 		GoogleApiClient.ConnectionCallbacks,
@@ -92,8 +93,9 @@ public class LocationBroadcastService extends Service implements
 			// onDestroy will be called and stop our location uodates
 			//if (location.getAccuracy() < 500.0f) {
 			//	stopLocationUpdates();
+			DB.setUserLocation(this, DB.getCurrentUserId(this), location);
 
-			Global.getInstance().putLocation(this, location);
+			DB.setCurrentUserLocation(this, location);
 			//}
 		}
 	}

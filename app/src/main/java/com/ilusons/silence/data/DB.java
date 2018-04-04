@@ -3,6 +3,7 @@ package com.ilusons.silence.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.firebase.geofire.GeoFire;
@@ -64,12 +65,40 @@ public final class DB {
 	public static String TAG_SPREF_CURRENT_USER_ID = "current_user_id";
 
 	public static String getCurrentUserId(final Context context) {
-		return getSharedPreferences(context).getString(TAG_SPREF_CURRENT_USER_ID, null);
+		String userId = getSharedPreferences(context).getString(TAG_SPREF_CURRENT_USER_ID, null);
+		if (TextUtils.isEmpty(userId)) {
+			// Assign a random user Id, app will handle it automatically, no server side update needed
+			userId = (new User()).Id;
+
+			setCurrentUserId(context, userId);
+		}
+		return userId;
 	}
 
 	public static void setCurrentUserId(final Context context, String value) {
 		SharedPreferences.Editor editor = getSharedPreferences(context).edit();
 		editor.putString(TAG_SPREF_CURRENT_USER_ID, value);
+		editor.apply();
+	}
+
+	public static String TAG_SPREF_CURRENT_USER_LOCATION = "current_user_location";
+
+	public static Location getCurrentUserLocation(final Context context) {
+		float lat = getSharedPreferences(context).getFloat(TAG_SPREF_CURRENT_USER_LOCATION + "_lat", 0);
+		float lng = getSharedPreferences(context).getFloat(TAG_SPREF_CURRENT_USER_LOCATION + "_lng", 0);
+
+		Location location = new Location("");
+
+		location.setLatitude(lat);
+		location.setLongitude(lng);
+
+		return location;
+	}
+
+	public static void setCurrentUserLocation(final Context context, Location location) {
+		SharedPreferences.Editor editor = getSharedPreferences(context).edit();
+		editor.putFloat(TAG_SPREF_CURRENT_USER_LOCATION + "_lat", (float) location.getLatitude());
+		editor.putFloat(TAG_SPREF_CURRENT_USER_LOCATION + "_lng", (float) location.getLongitude());
 		editor.apply();
 	}
 
@@ -112,15 +141,15 @@ public final class DB {
 				});
 	}
 
-	public static void setUserLocation(Context context, User user, Location location) {
+	public static void setUserLocation(Context context, String userId, Location location) {
 		GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
 
 		GeoFire geoFire = getGeoFireDatabase();
 
-		geoFire.setLocation(user.Id, geoLocation);
+		geoFire.setLocation(userId, geoLocation);
 	}
 
-	public static GeoQuery getUsersAtLocation(Context context, Location location, JavaEx.ActionT<User> onUser) {
+	public static GeoQuery queryUsersAtLocation(Context context, Location location, JavaEx.ActionT<User> onUser) {
 		GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
 
 		GeoFire geoFire = getGeoFireDatabase();
@@ -132,7 +161,6 @@ public final class DB {
 			public void onKeyEntered(String key, GeoLocation location) {
 				Log.d("geoFire", String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
 
-				LatLng pos = new LatLng(location.latitude, location.longitude);
 
 			}
 

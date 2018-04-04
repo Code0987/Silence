@@ -15,4 +15,17 @@ public class User {
 		Name = RandomEx.generateRandomString("_", Arrays.asList(RandomEx.COLORS, RandomEx.COOL_WORDS, RandomEx.ADJECTIVES));
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		User other = (User) obj;
+
+		if (other == null)
+			return false;
+
+		if (Id.equals(other.Id))
+			return true;
+
+		return false;
+	}
+
 }

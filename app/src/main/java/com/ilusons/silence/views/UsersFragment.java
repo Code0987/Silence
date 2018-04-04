@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.SnapshotParser;
@@ -25,15 +27,19 @@ import com.google.firebase.database.ValueEventListener;
 import com.ilusons.silence.R;
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.User;
+import com.ilusons.silence.ref.JavaEx;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import fr.tkeunebr.gravatar.Gravatar;
 
 public class UsersFragment extends Fragment {
 
 	private View view;
 
 	private RecyclerView recycler_view;
+	private RecyclerViewAdapter adapter;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,59 +53,93 @@ public class UsersFragment extends Fragment {
 		return view;
 	}
 
-
 	@Override
 	public void onStart() {
 		super.onStart();
 
-		FirebaseRecyclerAdapter<User, UserViewHolder> friendsRecyclerViewAdapter = new FirebaseRecyclerAdapter<User, UserViewHolder>(
-				new SnapshotParser<User>() {
-					@Override
-					public User parseSnapshot(DataSnapshot snapshot) {
-						return null;
-					}
-				},
-				R.layout.users_user,
-				UserViewHolder.class,
-				DB.getGeoFireDatabase().getDatabaseReference()) {
+		adapter = new RecyclerViewAdapter(getContext());
 
-			/**
-			 * Each time the data at the given Firebase location changes, this method will be called for
-			 * each item that needs to be displayed. The first two arguments correspond to the mLayout and
-			 * mModelClass given to the constructor of this class. The third argument is the item's position
-			 * in the list.
-			 * <p>
-			 * Your implementation should populate the view using the data contained in the model.
-			 *
-			 * @param viewHolder The view to populate
-			 * @param model      The object containing the data used to populate the view
-			 * @param position   The position in the list of the view being populated
-			 */
+		recycler_view.setAdapter(adapter);
+
+		DB.queryUsersAtLocation(getContext(), DB.getCurrentUserLocation(getContext()), new JavaEx.ActionT<User>() {
 			@Override
-			protected void populateViewHolder(UserViewHolder viewHolder, User model, int position) {
-
+			public void execute(User user) {
+				if (adapter != null)
+					adapter.add(user);
 			}
-		};
-
-		recycler_view.setAdapter(friendsRecyclerViewAdapter);
+		});
 
 	}
 
-	public static class UserViewHolder extends RecyclerView.ViewHolder {
+	public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.UserViewHolder> {
 
-		public View view;
+		private final Context context;
 
-		public ImageView image;
-		public TextView name;
+		private final ArrayList<User> users;
 
-		public UserViewHolder(View itemView) {
-			super(itemView);
+		public RecyclerViewAdapter(Context context) {
+			this.context = context;
 
-			view = itemView;
+			users = new ArrayList<>();
+		}
 
-			image = view.findViewById(R.id.image);
-			name = view.findViewById(R.id.name);
+		@Override
+		public int getItemCount() {
+			return users.size();
+		}
 
+		@Override
+		public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.users_user, parent, false);
+
+			UserViewHolder vh = new UserViewHolder(v);
+
+			return vh;
+		}
+
+		@Override
+		public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
+			final User user = users.get(position);
+
+			holder.name.setText(user.Name);
+
+			String gravatarUrl = Gravatar.init().with(user.Name).force404().size(Gravatar.MIN_IMAGE_SIZE_PIXEL).build();
+
+			Picasso.get().load(gravatarUrl).into(holder.image);
+
+		}
+
+		public static class UserViewHolder extends RecyclerView.ViewHolder {
+
+			public View view;
+
+			public ImageView image;
+			public TextView name;
+
+			public UserViewHolder(View itemView) {
+				super(itemView);
+
+				view = itemView;
+
+				image = view.findViewById(R.id.image);
+				name = view.findViewById(R.id.name);
+
+			}
+
+		}
+
+		public void add(User user) {
+			if (!users.contains(user))
+				users.add(user);
+
+			notifyDataSetChanged();
+		}
+
+		public void remove(User user) {
+			if (users.contains(user))
+				users.remove(user);
+
+			notifyDataSetChanged();
 		}
 
 	}
