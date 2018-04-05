@@ -13,10 +13,24 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_border_hollow"
+            android:onClick="openChatActivity"
+            android:text="[test]ChatActivity"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
         <include
-            android:id="@+id/toolBar"
-            layout="@layout/tool_bar"
-            />
+            android:id="@+id/toolBarMain"
+            layout="@layout/tool_bar" />
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

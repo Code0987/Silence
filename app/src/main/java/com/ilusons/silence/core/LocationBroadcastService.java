@@ -90,7 +90,7 @@ public class LocationBroadcastService extends Service implements
 			Log.e(TAG, "position: " + location.getLatitude() + ", " + location.getLongitude() + " accuracy: " + location.getAccuracy());
 
 			// we have our desired accuracy of 500 meters so lets quit this service,
-			// onDestroy will be called and stop our location uodates
+			// onDestroy will be called and stop our location updates
 			//if (location.getAccuracy() < 500.0f) {
 			//	stopLocationUpdates();
 			DB.setUserLocation(this, DB.getCurrentUserId(this), location);
