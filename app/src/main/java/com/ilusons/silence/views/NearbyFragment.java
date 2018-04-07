@@ -61,8 +61,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import fr.tkeunebr.gravatar.Gravatar;
-
 public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 	private final String TAG = NearbyFragment.class.getName();
@@ -225,22 +223,23 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 			return;
 
 		try {
-			googleMap.setMyLocationEnabled(true);
+			googleMap.setMyLocationEnabled(false);
 		} catch (SecurityException e) {
 			Log.e(TAG, "setMyLocationEnabled", e);
 		}
-		googleMap.setBuildingsEnabled(true);
-		googleMap.setIndoorEnabled(true);
-		googleMap.getUiSettings().setAllGesturesEnabled(true);
-		googleMap.getUiSettings().setCompassEnabled(true);
-		googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
-		googleMap.getUiSettings().setMapToolbarEnabled(true);
-		googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-		googleMap.getUiSettings().setRotateGesturesEnabled(true);
+		googleMap.setBuildingsEnabled(false);
+		googleMap.setIndoorEnabled(false);
+		googleMap.setTrafficEnabled(false);
+		googleMap.getUiSettings().setAllGesturesEnabled(false);
+		googleMap.getUiSettings().setCompassEnabled(false);
+		googleMap.getUiSettings().setIndoorLevelPickerEnabled(false);
+		googleMap.getUiSettings().setMapToolbarEnabled(false);
+		googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+		googleMap.getUiSettings().setRotateGesturesEnabled(false);
 		googleMap.getUiSettings().setScrollGesturesEnabled(true);
-		googleMap.getUiSettings().setTiltGesturesEnabled(true);
-		googleMap.getUiSettings().setZoomControlsEnabled(true);
-		googleMap.getUiSettings().setZoomGesturesEnabled(true);
+		googleMap.getUiSettings().setTiltGesturesEnabled(false);
+		googleMap.getUiSettings().setZoomControlsEnabled(false);
+		googleMap.getUiSettings().setZoomGesturesEnabled(false);
 
 		final Location location = DB.getCurrentUserLocation(context);
 		LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
@@ -249,6 +248,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 				.position(loc)
 				.title(DB.getCurrentUserId(context))
 				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+		googleMapMarkerForMe.showInfoWindow();
 
 		resetMap();
 	}
@@ -286,7 +286,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		public void onKeyExited(String key) {
 			if (key.equals(DB.getCurrentUserId(getContext())))
 				return;
-			
+
 			DB.getUser(
 					key,
 					new JavaEx.ActionT<User>() {
@@ -432,7 +432,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 					.snippet(user.Id)
 					.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
 			marker.setTag(user);
-			marker.hideInfoWindow();
+			marker.showInfoWindow();
 
 			if (googleMapMarkers.containsKey(user.Id))
 				removeUser(user);
@@ -475,12 +475,12 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 		if (count >= 1) {
 			googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
-			googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(9));
 		} else {
 			LatLngBounds.Builder b = new LatLngBounds.Builder().include(lastLocation);
 			googleMap.setLatLngBoundsForCameraTarget(b.build());
 			googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(b.build(), 100));
-			googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(9));
 		}
 	}
 
