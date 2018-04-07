@@ -11,7 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQueryEventListener;
+import com.google.firebase.database.DatabaseError;
 import com.ilusons.silence.R;
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.User;
@@ -49,15 +53,76 @@ public class ConversationsFragment extends Fragment {
 
 		recycler_view.setAdapter(adapter);
 
-		DB.queryUsersAtLocation(getContext(), DB.getCurrentUserLocation(getContext()), new JavaEx.ActionT<User>() {
-			@Override
-			public void execute(User user) {
-				if (adapter != null)
-					adapter.add(user);
-			}
-		});
+		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+		DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
 
 	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+
+		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+	}
+
+	private GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {
+		@Override
+		public void onKeyEntered(String key, final GeoLocation location) {
+			DB.getUser(
+					key,
+					new JavaEx.ActionT<User>() {
+						@Override
+						public void execute(User user) {
+							if (adapter != null)
+								adapter.add(user);
+
+							Toast.makeText(getContext(), user.Name + " is near you!", Toast.LENGTH_LONG).show();
+						}
+					},
+					new JavaEx.ActionT<Throwable>() {
+						@Override
+						public void execute(Throwable throwable) {
+
+						}
+					});
+		}
+
+		@Override
+		public void onKeyExited(String key) {
+			DB.getUser(
+					key,
+					new JavaEx.ActionT<User>() {
+						@Override
+						public void execute(User user) {
+							if (adapter != null)
+								adapter.remove(user);
+
+							Toast.makeText(getContext(), user.Name + " has gone away!", Toast.LENGTH_LONG).show();
+						}
+					},
+					new JavaEx.ActionT<Throwable>() {
+						@Override
+						public void execute(Throwable throwable) {
+
+						}
+					});
+		}
+
+		@Override
+		public void onKeyMoved(String key, GeoLocation location) {
+
+		}
+
+		@Override
+		public void onGeoQueryReady() {
+
+		}
+
+		@Override
+		public void onGeoQueryError(DatabaseError error) {
+
+		}
+	};
 
 	public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.UserViewHolder> {
 
