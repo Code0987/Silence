@@ -154,43 +154,45 @@ public final class DB {
 		});
 	}
 
-	public static GeoQuery queryUsersAtLocation(Context context, Location location, JavaEx.ActionT<User> onUser) {
-		GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
+	private static GeoQuery geoQueryForAllUsers;
 
-		GeoFire geoFire = getGeoFireDatabase();
+	public static GeoQuery getGeoQueryForAllUsers() {
+		if (geoQueryForAllUsers == null) {
+			GeoFire geoFire = getGeoFireDatabase();
 
-		GeoQuery geoQuery = geoFire.queryAtLocation(geoLocation, 5000);
+			geoQueryForAllUsers = geoFire.queryAtLocation(new GeoLocation(0, 0), 5000);
 
-		geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-			@Override
-			public void onKeyEntered(String key, GeoLocation location) {
-				Log.d("geoFire", String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
+			geoQueryForAllUsers.addGeoQueryEventListener(new GeoQueryEventListener() {
+				@Override
+				public void onKeyEntered(String key, GeoLocation location) {
+					Log.d("geoFire", String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
 
 
-			}
+				}
 
-			@Override
-			public void onKeyExited(String key) {
+				@Override
+				public void onKeyExited(String key) {
 
-			}
+				}
 
-			@Override
-			public void onKeyMoved(String key, GeoLocation location) {
+				@Override
+				public void onKeyMoved(String key, GeoLocation location) {
 
-			}
+				}
 
-			@Override
-			public void onGeoQueryReady() {
+				@Override
+				public void onGeoQueryReady() {
 
-			}
+				}
 
-			@Override
-			public void onGeoQueryError(DatabaseError error) {
+				@Override
+				public void onGeoQueryError(DatabaseError error) {
 
-			}
-		});
+				}
+			});
+		}
 
-		return geoQuery;
+		return geoQueryForAllUsers;
 	}
 
 	//endregion

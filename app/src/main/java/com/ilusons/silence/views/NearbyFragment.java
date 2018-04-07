@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,6 +25,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -39,10 +42,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.ilusons.silence.R;
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.User;
@@ -50,7 +56,9 @@ import com.ilusons.silence.ref.JavaEx;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import fr.tkeunebr.gravatar.Gravatar;
@@ -83,6 +91,24 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 	}
 
 	@Override
+	public void onDestroyView() {
+		// Remove map
+		try {
+			SupportMapFragment fragment = ((SupportMapFragment) getChildFragmentManager().findFragmentById(
+					R.id.map));
+			FragmentTransaction ft = getChildFragmentManager().beginTransaction();
+			ft.remove(fragment);
+			ft.commit();
+		} catch (Exception e) {
+			Log.w(TAG, e);
+		}
+
+		removeLocationUpdates();
+
+		super.onDestroyView();
+	}
+
+	@Override
 	public void onStart() {
 		super.onStart();
 
@@ -94,6 +120,13 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		super.onResume();
 
 		checkRequirements();
+	}
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		removeLocationUpdates();
 	}
 
 	@Override
@@ -115,49 +148,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 
-	private GoogleMap googleMap;
-
-	private Marker googleMapMarkerForMe;
-	private List<Marker> googleMapMarkers = new Vector<>();
-
-	@SuppressLint("MissingPermission")
-	@Override
-	public void onMapReady(final GoogleMap googleMap) {
-		this.googleMap = googleMap;
-
-		final Context context = getContext();
-		if (context == null)
-			return;
-
-		googleMap.setMyLocationEnabled(true);
-		googleMap.setBuildingsEnabled(true);
-		googleMap.setIndoorEnabled(true);
-		googleMap.getUiSettings().setAllGesturesEnabled(true);
-		googleMap.getUiSettings().setCompassEnabled(true);
-		googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
-		googleMap.getUiSettings().setMapToolbarEnabled(true);
-		googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-		googleMap.getUiSettings().setRotateGesturesEnabled(true);
-		googleMap.getUiSettings().setScrollGesturesEnabled(true);
-		googleMap.getUiSettings().setTiltGesturesEnabled(true);
-		googleMap.getUiSettings().setZoomControlsEnabled(true);
-		googleMap.getUiSettings().setZoomGesturesEnabled(true);
-
-		final Location location = DB.getCurrentUserLocation(context);
-		LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
-		googleMapMarkerForMe = googleMap.addMarker(new MarkerOptions()
-				.position(loc)
-				.title(DB.getCurrentUserId(context))
-				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
-		CameraPosition googlePlex = CameraPosition.builder()
-				.target(loc)
-				.zoom(21)
-				.bearing(0)
-				.tilt(45)
-				.build();
-		googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(googlePlex));
-	}
+	//region Initial
 
 	private void checkPermissions() {
 		final Context context = getContext();
@@ -211,10 +202,113 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		checkGoogleApi();
 	}
 
+	//endregion
+
 	//region Location updates
 
 	private FusedLocationProviderClient fusedLocationProviderClient;
 	private LocationCallback locationCallback;
+	private LatLng lastLocation;
+
+	private GoogleMap googleMap;
+
+	private Marker googleMapMarkerForMe;
+	private HashMap<String, Marker> googleMapMarkers = new HashMap<>();
+
+	@SuppressLint("MissingPermission")
+	@Override
+	public void onMapReady(final GoogleMap googleMap) {
+		this.googleMap = googleMap;
+
+		final Context context = getContext();
+		if (context == null)
+			return;
+
+		try {
+			googleMap.setMyLocationEnabled(true);
+		} catch (SecurityException e) {
+			Log.e(TAG, "setMyLocationEnabled", e);
+		}
+		googleMap.setBuildingsEnabled(true);
+		googleMap.setIndoorEnabled(true);
+		googleMap.getUiSettings().setAllGesturesEnabled(true);
+		googleMap.getUiSettings().setCompassEnabled(true);
+		googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
+		googleMap.getUiSettings().setMapToolbarEnabled(true);
+		googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+		googleMap.getUiSettings().setRotateGesturesEnabled(true);
+		googleMap.getUiSettings().setScrollGesturesEnabled(true);
+		googleMap.getUiSettings().setTiltGesturesEnabled(true);
+		googleMap.getUiSettings().setZoomControlsEnabled(true);
+		googleMap.getUiSettings().setZoomGesturesEnabled(true);
+
+		final Location location = DB.getCurrentUserLocation(context);
+		LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
+		lastLocation = loc;
+		googleMapMarkerForMe = googleMap.addMarker(new MarkerOptions()
+				.position(loc)
+				.title(DB.getCurrentUserId(context))
+				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+
+		resetMap();
+	}
+
+	private GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {
+		@Override
+		public void onKeyEntered(String key, final GeoLocation location) {
+			DB.getUser(
+					key,
+					new JavaEx.ActionT<User>() {
+						@Override
+						public void execute(User user) {
+							addUser(user, location);
+
+							Toast.makeText(getContext(), user.Name + " is near you!", Toast.LENGTH_LONG).show();
+						}
+					},
+					new JavaEx.ActionT<Throwable>() {
+						@Override
+						public void execute(Throwable throwable) {
+
+						}
+					});
+		}
+
+		@Override
+		public void onKeyExited(String key) {
+			DB.getUser(
+					key,
+					new JavaEx.ActionT<User>() {
+						@Override
+						public void execute(User user) {
+							removeUser(user);
+
+							Toast.makeText(getContext(), user.Name + " has gone away!", Toast.LENGTH_LONG).show();
+						}
+					},
+					new JavaEx.ActionT<Throwable>() {
+						@Override
+						public void execute(Throwable throwable) {
+
+						}
+					});
+		}
+
+		@Override
+		public void onKeyMoved(String key, GeoLocation location) {
+
+		}
+
+		@Override
+		public void onGeoQueryReady() {
+
+		}
+
+		@Override
+		public void onGeoQueryError(DatabaseError error) {
+
+		}
+	};
 
 	@SuppressLint("MissingPermission")
 	private void createLocationUpdates() {
@@ -241,8 +335,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		});
 
 		requestLocationUpdates();
-	}
 
+	}
 
 	public void requestLocationUpdates() {
 		try {
@@ -255,6 +349,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		} catch (SecurityException unlikely) {
 			Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
 		}
+
+		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+		DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
 	}
 
 	public void removeLocationUpdates() {
@@ -264,22 +361,98 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		} catch (SecurityException unlikely) {
 			Log.e(TAG, "Lost location permission. Could not remove updates. " + unlikely);
 		}
+
+		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
 	}
 
 	private void onNewLocation(Location location) {
 		if (location != null) {
 			Log.i(TAG, "position: " + location.getLatitude() + ", " + location.getLongitude() + " accuracy: " + location.getAccuracy());
 
-			Context context = getContext().getApplicationContext();
-
 			// we have our desired accuracy of 500 meters so lets quit this service,
 			// onDestroy will be called and stop our location updates
 			//if (location.getAccuracy() < 500.0f) {
 			//	stopLocationUpdates();
+
+			Context context = getContext().getApplicationContext();
+
+			lastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+			DB.getGeoQueryForAllUsers().setCenter(new GeoLocation(location.getLatitude(), location.getLongitude()));
+
 			DB.setUserLocation(context, DB.getCurrentUserId(context), location);
 
 			DB.setCurrentUserLocation(context, location);
+
+			if (googleMapMarkerForMe != null) {
+				googleMapMarkerForMe.setPosition(lastLocation);
+			}
+
+			resetMap();
+
 			//}
+		}
+	}
+
+	public void addUser(User user, GeoLocation geoLocation) {
+		try {
+			LatLng latLng = new LatLng(geoLocation.latitude, geoLocation.longitude);
+
+			Marker marker = googleMap.addMarker(new MarkerOptions()
+					.position(latLng)
+					.title(user.Name)
+					.snippet(user.Name)
+					.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+			marker.setTag(user);
+			marker.hideInfoWindow();
+
+			if (googleMapMarkers.containsKey(user.Id))
+				removeUser(user);
+			googleMapMarkers.put(user.Id, marker);
+
+			resetMap();
+		} catch (Exception e) {
+			Log.e(TAG, "Parse location error", e);
+		}
+	}
+
+	public void removeUser(User user) {
+		if (googleMap == null)
+			return;
+
+		if (googleMapMarkers.containsKey(user.Id)) {
+			Marker marker = googleMapMarkers.get(user.Id);
+
+			googleMapMarkers.remove(user.Id);
+
+			marker.remove();
+		}
+
+		resetMap();
+	}
+
+	public void resetMap() {
+		if (googleMap == null)
+			return;
+
+		Integer count = 0;
+		LatLngBounds.Builder builder = new LatLngBounds.Builder();
+		for (Map.Entry<String, Marker> entry : googleMapMarkers.entrySet()) {
+			String k = entry.getKey();
+			Marker v = entry.getValue();
+
+			builder.include(v.getPosition());
+			count++;
+		}
+
+		if (count >= 1) {
+			googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+		} else {
+			LatLngBounds.Builder b = new LatLngBounds.Builder().include(lastLocation);
+			googleMap.setLatLngBoundsForCameraTarget(b.build());
+			googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(b.build(), 100));
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(13));
 		}
 	}
 
