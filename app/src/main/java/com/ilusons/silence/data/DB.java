@@ -107,37 +107,41 @@ public final class DB {
 	public final static String KEY_USERS_ID = "id";
 
 	public static void getUser(final String id, final JavaEx.ActionT<User> onUser, final JavaEx.ActionT<Throwable> onError) {
-		getFirebaseDatabase().getReference()
-				.child(KEY_USERS)
-				.child(id)
-				.addValueEventListener(new ValueEventListener() {
-					@Override
-					public void onDataChange(DataSnapshot dataSnapshot) {
-						if (dataSnapshot != null) {
-							try {
-								User user = new User();
-								user.Id = id;
+		try {
+			getFirebaseDatabase().getReference()
+					.child(KEY_USERS)
+					.child(id)
+					.addValueEventListener(new ValueEventListener() {
+						@Override
+						public void onDataChange(DataSnapshot dataSnapshot) {
+							if (dataSnapshot != null) {
+								try {
+									User user = new User();
+									user.Id = id;
 
-								if (onUser != null)
-									onUser.execute(user);
-							} catch (Exception e) {
-								e.printStackTrace();
+									if (onUser != null)
+										onUser.execute(user);
+								} catch (Exception e) {
+									e.printStackTrace();
 
+									if (onError != null)
+										onError.execute(e);
+								}
+							} else {
 								if (onError != null)
-									onError.execute(e);
+									onError.execute(new Exception());
 							}
-						} else {
-							if (onError != null)
-								onError.execute(new Exception());
 						}
-					}
 
-					@Override
-					public void onCancelled(DatabaseError databaseError) {
-						if (onError != null)
-							onError.execute(new Exception(databaseError.getMessage()));
-					}
-				});
+						@Override
+						public void onCancelled(DatabaseError databaseError) {
+							if (onError != null)
+								onError.execute(new Exception(databaseError.getMessage()));
+						}
+					});
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void setUserLocation(Context context, String userId, Location location) {
