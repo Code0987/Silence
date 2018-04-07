@@ -53,8 +53,12 @@ public class ConversationsFragment extends Fragment {
 
 		recycler_view.setAdapter(adapter);
 
-		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
-		DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
+		try {
+			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+			DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -62,7 +66,12 @@ public class ConversationsFragment extends Fragment {
 	public void onStop() {
 		super.onStop();
 
-		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+
+		try {
+			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {

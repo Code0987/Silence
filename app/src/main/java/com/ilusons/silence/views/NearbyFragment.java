@@ -350,8 +350,12 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 			Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
 		}
 
-		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
-		DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
+		try {
+			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+			DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void removeLocationUpdates() {
@@ -362,8 +366,12 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 			Log.e(TAG, "Lost location permission. Could not remove updates. " + unlikely);
 		}
 
-		DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
-	}
+
+		try {
+			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	}
 
 	private void onNewLocation(Location location) {
 		if (location != null) {
