@@ -88,7 +88,7 @@ public class ConversationsFragment extends Fragment {
 							if (adapter != null)
 								adapter.add(user);
 
-							Toast.makeText(getContext(), user.Name + " is near you!", Toast.LENGTH_LONG).show();
+							Toast.makeText(getContext(), user.Id + " is near you!", Toast.LENGTH_LONG).show();
 						}
 					},
 					new JavaEx.ActionT<Throwable>() {
@@ -109,7 +109,7 @@ public class ConversationsFragment extends Fragment {
 							if (adapter != null)
 								adapter.remove(user);
 
-							Toast.makeText(getContext(), user.Name + " has gone away!", Toast.LENGTH_LONG).show();
+							Toast.makeText(getContext(), user.Id + " has gone away!", Toast.LENGTH_LONG).show();
 						}
 					},
 					new JavaEx.ActionT<Throwable>() {
@@ -166,9 +166,9 @@ public class ConversationsFragment extends Fragment {
 		public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
 			final User user = users.get(position);
 
-			holder.name.setText(user.Name);
+			holder.name.setText(user.Id);
 
-			String gravatarUrl = Gravatar.init().with(user.Name).force404().size(Gravatar.MIN_IMAGE_SIZE_PIXEL).build();
+			String gravatarUrl = Gravatar.init().with(user.Id).force404().size(Gravatar.MIN_IMAGE_SIZE_PIXEL).build();
 
 			Picasso.get().load(gravatarUrl).into(holder.image);
 

@@ -105,7 +105,6 @@ public final class DB {
 
 	public final static String KEY_USERS = "users";
 	public final static String KEY_USERS_ID = "id";
-	public final static String KEY_USERS_NAME = "name";
 
 	public static void getUser(final String id, final JavaEx.ActionT<User> onUser, final JavaEx.ActionT<Throwable> onError) {
 		getFirebaseDatabase().getReference()
@@ -118,7 +117,6 @@ public final class DB {
 							try {
 								User user = new User();
 								user.Id = id;
-								user.Name = dataSnapshot.child(KEY_USERS_NAME).getValue().toString();
 
 								if (onUser != null)
 									onUser.execute(user);

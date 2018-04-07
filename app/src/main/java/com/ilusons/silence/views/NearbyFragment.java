@@ -263,7 +263,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 						public void execute(User user) {
 							addUser(user, location);
 
-							Toast.makeText(getContext(), user.Name + " is near you!", Toast.LENGTH_LONG).show();
+							Toast.makeText(getContext(), user.Id + " is near you!", Toast.LENGTH_LONG).show();
 						}
 					},
 					new JavaEx.ActionT<Throwable>() {
@@ -283,7 +283,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 						public void execute(User user) {
 							removeUser(user);
 
-							Toast.makeText(getContext(), user.Name + " has gone away!", Toast.LENGTH_LONG).show();
+							Toast.makeText(getContext(), user.Id + " has gone away!", Toast.LENGTH_LONG).show();
 						}
 					},
 					new JavaEx.ActionT<Throwable>() {
@@ -413,8 +413,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 			Marker marker = googleMap.addMarker(new MarkerOptions()
 					.position(latLng)
-					.title(user.Name)
-					.snippet(user.Name)
+					.title(user.Id)
+					.snippet(user.Id)
 					.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
 			marker.setTag(user);
 			marker.hideInfoWindow();
