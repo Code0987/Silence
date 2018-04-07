@@ -80,44 +80,12 @@ public class ConversationsFragment extends Fragment {
 	private GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {
 		@Override
 		public void onKeyEntered(String key, final GeoLocation location) {
-			DB.getUser(
-					key,
-					new JavaEx.ActionT<User>() {
-						@Override
-						public void execute(User user) {
-							if (adapter != null)
-								adapter.add(user);
 
-							Toast.makeText(getContext(), user.Id + " is near you!", Toast.LENGTH_LONG).show();
-						}
-					},
-					new JavaEx.ActionT<Throwable>() {
-						@Override
-						public void execute(Throwable throwable) {
-
-						}
-					});
 		}
 
 		@Override
 		public void onKeyExited(String key) {
-			DB.getUser(
-					key,
-					new JavaEx.ActionT<User>() {
-						@Override
-						public void execute(User user) {
-							if (adapter != null)
-								adapter.remove(user);
 
-							Toast.makeText(getContext(), user.Id + " has gone away!", Toast.LENGTH_LONG).show();
-						}
-					},
-					new JavaEx.ActionT<Throwable>() {
-						@Override
-						public void execute(Throwable throwable) {
-
-						}
-					});
 		}
 
 		@Override

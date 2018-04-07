@@ -260,10 +260,15 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 					key,
 					new JavaEx.ActionT<User>() {
 						@Override
-						public void execute(User user) {
-							addUser(user, location);
+						public void execute(final User user) {
+							getActivity().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									addUser(user, location);
 
-							Toast.makeText(getContext(), user.Id + " is near you!", Toast.LENGTH_LONG).show();
+									Toast.makeText(getContext(), user.Id + " is near you!", Toast.LENGTH_LONG).show();
+								}
+							});
 						}
 					},
 					new JavaEx.ActionT<Throwable>() {
@@ -280,10 +285,15 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 					key,
 					new JavaEx.ActionT<User>() {
 						@Override
-						public void execute(User user) {
-							removeUser(user);
+						public void execute(final User user) {
+							getActivity().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									removeUser(user);
 
-							Toast.makeText(getContext(), user.Id + " has gone away!", Toast.LENGTH_LONG).show();
+									Toast.makeText(getContext(), user.Id + " has gone away!", Toast.LENGTH_LONG).show();
+								}
+							});
 						}
 					},
 					new JavaEx.ActionT<Throwable>() {
@@ -369,7 +379,6 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		} catch (SecurityException unlikely) {
 			Log.e(TAG, "Lost location permission. Could not remove updates. " + unlikely);
 		}
-
 
 		try {
 			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);

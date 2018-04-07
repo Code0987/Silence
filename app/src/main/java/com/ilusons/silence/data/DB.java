@@ -16,6 +16,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.ilusons.silence.BuildConfig;
 import com.ilusons.silence.ref.JavaEx;
@@ -27,11 +30,11 @@ public final class DB {
 	//region Firebase db
 
 	public static FirebaseDatabase getFirebaseDatabase() {
-		return FirebaseDatabase.getInstance(BuildConfig.DEBUG ? "testing" : "production");
+		return FirebaseDatabase.getInstance();
 	}
 
 	public static GeoFire getGeoFireDatabase() {
-		DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("geo");
+		DatabaseReference databaseReference = getFirebaseDatabase().getReference("geo");
 		GeoFire geoFire = new GeoFire(databaseReference);
 		return geoFire;
 	}
@@ -104,38 +107,40 @@ public final class DB {
 	}
 
 	public final static String KEY_USERS = "users";
-	public final static String KEY_USERS_ID = "id";
+	public final static String KEY_USERS_LAST_ACCESSED = "last_accessed";
 
 	public static void getUser(final String id, final JavaEx.ActionT<User> onUser, final JavaEx.ActionT<Throwable> onError) {
 		try {
 			getFirebaseDatabase().getReference()
 					.child(KEY_USERS)
 					.child(id)
-					.addValueEventListener(new ValueEventListener() {
+					.child(KEY_USERS_LAST_ACCESSED)
+					.runTransaction(new Transaction.Handler() {
 						@Override
-						public void onDataChange(DataSnapshot dataSnapshot) {
-							if (dataSnapshot != null) {
-								try {
-									User user = new User();
-									user.Id = id;
+						public Transaction.Result doTransaction(MutableData mutableData) {
+							try {
+								if (mutableData.getValue() != null)
+									mutableData.setValue(ServerValue.TIMESTAMP);
 
-									if (onUser != null)
-										onUser.execute(user);
-								} catch (Exception e) {
-									e.printStackTrace();
+								User user = new User();
+								user.Id = id;
 
-									if (onError != null)
-										onError.execute(e);
-								}
-							} else {
+								if (onUser != null)
+									onUser.execute(user);
+
+								return Transaction.success(mutableData);
+							} catch (Exception e) {
+								e.printStackTrace();
+
 								if (onError != null)
-									onError.execute(new Exception());
+									onError.execute(e);
 							}
+							return Transaction.abort();
 						}
 
 						@Override
-						public void onCancelled(DatabaseError databaseError) {
-							if (onError != null)
+						public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+							if (onError != null && databaseError != null)
 								onError.execute(new Exception(databaseError.getMessage()));
 						}
 					});
