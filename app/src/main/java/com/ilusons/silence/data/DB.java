@@ -119,8 +119,7 @@ public final class DB {
 						@Override
 						public Transaction.Result doTransaction(MutableData mutableData) {
 							try {
-								if (mutableData.getValue() != null)
-									mutableData.setValue(ServerValue.TIMESTAMP);
+								mutableData.setValue(ServerValue.TIMESTAMP);
 
 								User user = new User();
 								user.Id = id;
@@ -169,35 +168,6 @@ public final class DB {
 			GeoFire geoFire = getGeoFireDatabase();
 
 			geoQueryForAllUsers = geoFire.queryAtLocation(new GeoLocation(0, 0), 8587);
-
-			geoQueryForAllUsers.addGeoQueryEventListener(new GeoQueryEventListener() {
-				@Override
-				public void onKeyEntered(String key, GeoLocation location) {
-					Log.d("geoFire", String.format("Key %s entered the search area at [%f,%f]", key, location.latitude, location.longitude));
-
-
-				}
-
-				@Override
-				public void onKeyExited(String key) {
-
-				}
-
-				@Override
-				public void onKeyMoved(String key, GeoLocation location) {
-
-				}
-
-				@Override
-				public void onGeoQueryReady() {
-
-				}
-
-				@Override
-				public void onGeoQueryError(DatabaseError error) {
-
-				}
-			});
 		}
 
 		return geoQueryForAllUsers;

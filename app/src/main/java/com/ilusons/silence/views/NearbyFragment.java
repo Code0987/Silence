@@ -256,6 +256,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 	private GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {
 		@Override
 		public void onKeyEntered(String key, final GeoLocation location) {
+			if (key.equals(DB.getCurrentUserId(getContext())))
+				return;
+
 			DB.getUser(
 					key,
 					new JavaEx.ActionT<User>() {
@@ -281,6 +284,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 		@Override
 		public void onKeyExited(String key) {
+			if (key.equals(DB.getCurrentUserId(getContext())))
+				return;
+			
 			DB.getUser(
 					key,
 					new JavaEx.ActionT<User>() {
