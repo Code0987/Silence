@@ -26,4 +26,8 @@ public class User {
 		return false;
 	}
 
+	public String getAvatarUrl() {
+		return "https://ui-avatars.com/api/?size=128&rounded=true&name=" + Id;
+	}
+
 }

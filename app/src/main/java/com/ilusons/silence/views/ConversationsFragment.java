@@ -24,8 +24,6 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import fr.tkeunebr.gravatar.Gravatar;
-
 public class ConversationsFragment extends Fragment {
 
 	private View view;
@@ -136,9 +134,7 @@ public class ConversationsFragment extends Fragment {
 
 			holder.name.setText(user.Id);
 
-			String gravatarUrl = Gravatar.init().with(user.Id).force404().size(Gravatar.MIN_IMAGE_SIZE_PIXEL).build();
-
-			Picasso.get().load(gravatarUrl).into(holder.image);
+			Picasso.get().load(user.getAvatarUrl()).into(holder.image);
 
 		}
 

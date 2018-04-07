@@ -2,6 +2,7 @@ package com.ilusons.silence;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,9 +16,15 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.ilusons.silence.data.DB;
+import com.ilusons.silence.data.User;
+import com.ilusons.silence.ref.JavaEx;
 import com.ilusons.silence.views.ConversationsFragment;
 import com.ilusons.silence.views.NearbyFragment;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 import java.util.Vector;
@@ -66,6 +73,41 @@ public class MainActivity extends AppCompatActivity {
 		TabLayout tab_layout = findViewById(R.id.tab_layout);
 		tab_layout.setupWithViewPager(view_pager, true);
 
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		// Load user info
+
+		NavigationView navigationView = findViewById(R.id.navigation_view);
+		View header = navigationView.getHeaderView(0);
+
+		TextView user_name_drawer = header.findViewById(R.id.user_name_drawer);
+		user_name_drawer.setText(DB.getCurrentUserId(this));
+
+		final ImageView user_avatar_drawer = header.findViewById(R.id.user_avatar_drawer);
+
+		DB.getUser(
+				DB.getCurrentUserId(this),
+				new JavaEx.ActionT<User>() {
+					@Override
+					public void execute(final User user) {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Picasso.get().load(user.getAvatarUrl()).into(user_avatar_drawer);
+							}
+						});
+					}
+				},
+				new JavaEx.ActionT<Throwable>() {
+					@Override
+					public void execute(Throwable throwable) {
+
+					}
+				});
 	}
 
 	@Override
