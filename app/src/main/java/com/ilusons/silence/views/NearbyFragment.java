@@ -352,9 +352,13 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 		try {
 			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+		} catch (Exception e) {
+			// Eat?
+		}
+		try {
 			DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// Eat?
 		}
 	}
 
@@ -370,8 +374,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		try {
 			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
 		} catch (Exception e) {
-			e.printStackTrace();
-		}	}
+			// Eat?
+		}
+	}
 
 	private void onNewLocation(Location location) {
 		if (location != null) {

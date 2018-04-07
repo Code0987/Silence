@@ -55,9 +55,13 @@ public class ConversationsFragment extends Fragment {
 
 		try {
 			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
+		} catch (Exception e) {
+			// Eat?
+		}
+		try {
 			DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// Eat?
 		}
 
 	}
@@ -69,7 +73,7 @@ public class ConversationsFragment extends Fragment {
 		try {
 			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// Eat?
 		}
 	}
 
