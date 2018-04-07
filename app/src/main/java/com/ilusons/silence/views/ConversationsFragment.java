@@ -66,7 +66,6 @@ public class ConversationsFragment extends Fragment {
 	public void onStop() {
 		super.onStop();
 
-
 		try {
 			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
 		} catch (Exception e) {

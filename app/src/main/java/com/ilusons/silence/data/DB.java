@@ -11,6 +11,7 @@ import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryDataEventListener;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.firebase.geofire.util.GeoUtils;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -160,7 +161,7 @@ public final class DB {
 		if (geoQueryForAllUsers == null) {
 			GeoFire geoFire = getGeoFireDatabase();
 
-			geoQueryForAllUsers = geoFire.queryAtLocation(new GeoLocation(0, 0), 5000);
+			geoQueryForAllUsers = geoFire.queryAtLocation(new GeoLocation(0, 0), 8587);
 
 			geoQueryForAllUsers.addGeoQueryEventListener(new GeoQueryEventListener() {
 				@Override
