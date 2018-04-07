@@ -9,7 +9,7 @@
 
     <include
         android:id="@+id/toolBarChat"
-        layout="@layout/tool_bar"
+        layout="@layout/toolbar"
         />
 
     <android.support.v7.widget.RecyclerView

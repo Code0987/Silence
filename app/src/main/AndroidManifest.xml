@@ -19,22 +19,20 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".MainActivity"
-            android:label="Nearby">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyChQy_fuZ39q_819Vc6MagvdqP_qEiVhZE"/>
+
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ConversationActivity"
+        <activity
+            android:name=".ConversationActivity"
             android:exported="true"/>
-
-        <service
-            android:name=".core.LocationBroadcastService"
-            android:enabled="true"
-            android:exported="true">
-        </service>
 
     </application>
 

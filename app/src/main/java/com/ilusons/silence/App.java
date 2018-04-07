@@ -1,13 +1,11 @@
 package com.ilusons.silence;
 
 import android.app.Application;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.database.FirebaseDatabase;
-import com.ilusons.silence.core.LocationBroadcastService;
 import com.squareup.picasso.Picasso;
 
 public class App extends Application {
@@ -48,9 +46,6 @@ public class App extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// Start broadcasting
-		startService(new Intent(this, LocationBroadcastService.class));
 
 	}
 
