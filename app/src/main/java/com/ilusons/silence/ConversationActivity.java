@@ -46,6 +46,7 @@ public class ConversationActivity extends AppCompatActivity {
 
         rc_view= (RecyclerView) findViewById(R.id.rv_message_list);
        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+       layoutManager.setStackFromEnd(true);
 
        rc_view.setLayoutManager(layoutManager);
 
