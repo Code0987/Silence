@@ -146,7 +146,12 @@ public final class DB {
 
 		GeoFire geoFire = getGeoFireDatabase();
 
-		geoFire.setLocation(userId, geoLocation);
+		geoFire.setLocation(userId, geoLocation, new GeoFire.CompletionListener() {
+			@Override
+			public void onComplete(String key, DatabaseError error) {
+				Log.d("geoFire/setLocation", key + "\n" + error);
+			}
+		});
 	}
 
 	public static GeoQuery queryUsersAtLocation(Context context, Location location, JavaEx.ActionT<User> onUser) {
