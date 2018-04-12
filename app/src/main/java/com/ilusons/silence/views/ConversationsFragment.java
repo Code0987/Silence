@@ -6,30 +6,32 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.firebase.geofire.GeoLocation;
-import com.firebase.geofire.GeoQueryEventListener;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.ilusons.silence.R;
 import com.ilusons.silence.data.DB;
-import com.ilusons.silence.data.User;
-import com.ilusons.silence.ref.JavaEx;
-import com.squareup.picasso.Picasso;
+import com.ilusons.silence.data.Message;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConversationsFragment extends Fragment {
 
 	private View view;
 
 	private RecyclerView recycler_view;
-	private RecyclerViewAdapter adapter;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,133 +42,161 @@ public class ConversationsFragment extends Fragment {
 		recycler_view.setHasFixedSize(true);
 		recycler_view.setLayoutManager(new LinearLayoutManager(getContext()));
 
+		LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+		layoutManager.setReverseLayout(true);
+		layoutManager.setStackFromEnd(true);
+
+		recycler_view.setLayoutManager(layoutManager);
+
 		return view;
 	}
+
+	private ItemsAdapter adapter;
 
 	@Override
 	public void onStart() {
 		super.onStart();
 
-		adapter = new RecyclerViewAdapter(getContext());
+		adapter = new ItemsAdapter(getContext());
+
+		ChildEventListener childEventListener = new ChildEventListener() {
+			@Override
+			public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+				adapter.addData(DB.getCurrentUserId(getContext()), Message.createFromData(dataSnapshot));
+			}
+
+			@Override
+			public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+			}
+
+			@Override
+			public void onChildRemoved(DataSnapshot dataSnapshot) {
+				adapter.removeData(Message.createFromData(dataSnapshot));
+			}
+
+			@Override
+			public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+			}
+
+			@Override
+			public void onCancelled(DatabaseError databaseError) {
+
+			}
+		};
+
+		DB.getFirebaseDatabase().getReference()
+				.child(DB.KEY_MESSAGES)
+				.orderByChild(DB.KEY_MESSAGES_RECEIVER_ID)
+				.equalTo(DB.KEY_MESSAGES_RECEIVER_ID, DB.getCurrentUserId(getContext()))
+				.addChildEventListener(childEventListener);
+
+		DB.getFirebaseDatabase().getReference()
+				.child(DB.KEY_MESSAGES)
+				.orderByChild(DB.KEY_MESSAGES_SENDER_ID)
+				.equalTo(DB.KEY_MESSAGES_SENDER_ID, DB.getCurrentUserId(getContext()))
+				.addChildEventListener(childEventListener);
 
 		recycler_view.setAdapter(adapter);
 
-		try {
-			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
-		} catch (Exception e) {
-			// Eat?
-		}
-		try {
-			DB.getGeoQueryForAllUsers().addGeoQueryEventListener(geoQueryEventListener);
-		} catch (Exception e) {
-			// Eat?
-		}
-
 	}
 
-	@Override
-	public void onStop() {
-		super.onStop();
-
-		try {
-			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
-		} catch (Exception e) {
-			// Eat?
-		}
-	}
-
-	private GeoQueryEventListener geoQueryEventListener = new GeoQueryEventListener() {
-		@Override
-		public void onKeyEntered(String key, final GeoLocation location) {
-
-		}
-
-		@Override
-		public void onKeyExited(String key) {
-
-		}
-
-		@Override
-		public void onKeyMoved(String key, GeoLocation location) {
-
-		}
-
-		@Override
-		public void onGeoQueryReady() {
-
-		}
-
-		@Override
-		public void onGeoQueryError(DatabaseError error) {
-
-		}
-	};
-
-	public static class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.UserViewHolder> {
+	public static class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHolder> {
 
 		private final Context context;
 
-		private final ArrayList<User> users;
+		private final ArrayList<Pair<String, ArrayList<Message>>> items;
 
-		public RecyclerViewAdapter(Context context) {
+		public ItemsAdapter(Context context) {
 			this.context = context;
 
-			users = new ArrayList<>();
+			items = new ArrayList<>();
 		}
 
 		@Override
 		public int getItemCount() {
-			return users.size();
+			return items.size();
 		}
 
+		@NonNull
 		@Override
-		public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.conversations_conversation, parent, false);
+		public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			Context context = parent.getContext();
 
-			UserViewHolder vh = new UserViewHolder(v);
+			View view = LayoutInflater.from(context).inflate(R.layout.conversations_item, parent, false);
+
+			ItemViewHolder vh = new ItemViewHolder(view);
 
 			return vh;
 		}
 
 		@Override
-		public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-			final User user = users.get(position);
+		public void onBindViewHolder(@NonNull ItemViewHolder vh, int position) {
+			final Pair<String, ArrayList<Message>> item = items.get(position);
 
-			holder.name.setText(user.Id);
+			vh.id.setText(item.first);
 
-			Picasso.get().load(user.getAvatarUrl()).into(holder.image);
+			vh.info.setText(item.second.size());
 
 		}
 
-		public static class UserViewHolder extends RecyclerView.ViewHolder {
+		public static class ItemViewHolder extends RecyclerView.ViewHolder {
 
 			public View view;
 
 			public ImageView image;
-			public TextView name;
+			public TextView id;
+			public TextView info;
 
-			public UserViewHolder(View itemView) {
+			public ItemViewHolder(View itemView) {
 				super(itemView);
 
 				view = itemView;
 
 				image = view.findViewById(R.id.image);
-				name = view.findViewById(R.id.name);
+				id = view.findViewById(R.id.id);
+				info = view.findViewById(R.id.info);
 
 			}
 
 		}
 
-		public void add(User user) {
-			if (!users.contains(user))
-				users.add(user);
+		public void addData(String myId, Message data) {
+			Pair<String, ArrayList<Message>> itemMatched = null;
+
+			for (Pair<String, ArrayList<Message>> item : items)
+				if (item.first.equals(data.SenderId) || item.first.equals(data.ReceiverId)) {
+					itemMatched = item;
+					break;
+				}
+
+			if (itemMatched == null) {
+				itemMatched = Pair.create(
+						data.SenderId,
+						new ArrayList<Message>());
+
+				items.add(itemMatched);
+			}
+
+			if (myId.equals(data.SenderId) || myId.equals(data.ReceiverId))
+				itemMatched.second.add(data);
 
 			notifyDataSetChanged();
 		}
 
-		public void remove(User user) {
-			if (users.contains(user))
-				users.remove(user);
+		public void removeData(Message data) {
+			Pair<String, ArrayList<Message>> itemMatched = null;
+
+			for (Pair<String, ArrayList<Message>> item : items)
+				if (item.first.equals(data.SenderId) || item.first.equals(data.ReceiverId)) {
+					itemMatched = item;
+					break;
+				}
+
+			if (itemMatched != null) {
+				items.remove(itemMatched);
+			}
 
 			notifyDataSetChanged();
 		}

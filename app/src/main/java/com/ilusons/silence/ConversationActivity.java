@@ -1,6 +1,7 @@
 package com.ilusons.silence;
 
 import android.content.Context;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -27,123 +28,158 @@ import java.util.Arrays;
 
 public class ConversationActivity extends AppCompatActivity {
 
-    Toolbar toolbar;
+	public final static String KEY_PEER_USER_ID = "peer_user_id";
 
-    RecyclerView rc_view;
-    ChatAdaptor chatAdaptor;
+	private String peerUserId;
 
+	Toolbar toolbar;
 
-   @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_conversation);
+	RecyclerView rc_view;
+	ChatAdaptor chatAdaptor;
 
-        toolbar = (Toolbar)findViewById(R.id.toolBarChat);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        //getSupportActionBar().setIcon(R.drawable.user_avatar_256);
-        getSupportActionBar().setTitle("Username");
+	@Override
+	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+		super.onSaveInstanceState(outState, outPersistentState);
 
+<<<<<<< HEAD
         rc_view= (RecyclerView) findViewById(R.id.rv_message_list);
        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
        layoutManager.setStackFromEnd(true);
+=======
+		outState.putString(KEY_PEER_USER_ID, peerUserId);
+		outPersistentState.putString(KEY_PEER_USER_ID, peerUserId);
+	}
+>>>>>>> updated db
 
-       rc_view.setLayoutManager(layoutManager);
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
+		super.onRestoreInstanceState(savedInstanceState, persistentState);
 
-       rc_view.setHasFixedSize(true);
+		if (savedInstanceState != null && savedInstanceState.containsKey(KEY_PEER_USER_ID))
+			peerUserId = savedInstanceState.getString(KEY_PEER_USER_ID);
+		if (persistentState != null && persistentState.containsKey(KEY_PEER_USER_ID))
+			peerUserId = persistentState.getString(KEY_PEER_USER_ID);
 
-       chatAdaptor = new ChatAdaptor(this);
+	}
 
-       rc_view.setAdapter(chatAdaptor);
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-    }
+		// Get intent data
+		if (getIntent().getAction() != null) {
+			peerUserId = getIntent().getStringExtra(KEY_PEER_USER_ID);
+		}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+		// Get from old data
+		if (savedInstanceState != null) {
+			peerUserId = savedInstanceState.getString(KEY_PEER_USER_ID);
+		}
 
-        MenuInflater inflater = getMenuInflater();
+		setContentView(R.layout.activity_conversation);
 
-        inflater.inflate(R.menu.chat_menu , menu);
-        return true;
-    }
+		toolbar = (Toolbar) findViewById(R.id.toolBarChat);
+		setSupportActionBar(toolbar);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		//getSupportActionBar().setIcon(R.drawable.user_avatar_256);
+		getSupportActionBar().setTitle(peerUserId);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+		rc_view = (RecyclerView) findViewById(R.id.rv_message_list);
+		LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 
-        int itemId = item.getItemId();
+		rc_view.setLayoutManager(layoutManager);
 
-        //Just for testing
+		rc_view.setHasFixedSize(true);
 
-        switch (itemId){
-            case R.id.action_delete_chat:
-                Toast.makeText(this, "Delete chat bro", Toast.LENGTH_LONG).show();
-                break;
-            case R.id.action_block:
-                Toast.makeText(this, "Block this nibba", Toast.LENGTH_LONG).show();
-                break;
+		chatAdaptor = new ChatAdaptor(this);
 
-            case android.R.id.home:
-                finish();
-        }
+		rc_view.setAdapter(chatAdaptor);
 
-        //Delete after testing
+	}
 
-        return super.onOptionsItemSelected(item);
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
 
-    public static class ChatAdaptor extends RecyclerView.Adapter<ChatAdaptor.ChatViewHolder>{
+		MenuInflater inflater = getMenuInflater();
 
-        private final Context context;
+		inflater.inflate(R.menu.chat_menu, menu);
+		return true;
+	}
 
-        private final ArrayList<String> messages;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
 
-        public ChatAdaptor(Context context) {
-            this.context = context;
-            messages = new ArrayList<>(Arrays.asList("m1","m2","m3","m4","m5","m6","m7","m8","m9","m10"));
-        }
+		int itemId = item.getItemId();
 
-        @Override
-        public int getItemCount() {
-            return messages.size();
-        }
+		//Just for testing
 
-        @NonNull
-        @Override
-        public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            Context context = parent.getContext();
-            int layoutItem = R.layout.message_bubble;
-            LayoutInflater inflater = LayoutInflater.from(context);
-            boolean attachImmedietly = false;
+		switch (itemId) {
+			case R.id.action_delete_chat:
+				Toast.makeText(this, "Delete chat bro", Toast.LENGTH_LONG).show();
+				break;
+			case R.id.action_block:
+				Toast.makeText(this, "Block this nibba", Toast.LENGTH_LONG).show();
+				break;
 
-            View view = inflater.inflate(layoutItem, parent, attachImmedietly);
-            ChatViewHolder cv = new ChatViewHolder(view);
+			case android.R.id.home:
+				finish();
+		}
 
-            return cv;
-        }
+		//Delete after testing
 
-        @Override
-        public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-            String m = messages.get(position);
+		return super.onOptionsItemSelected(item);
+	}
 
-            holder.tv_message.setText(m);
-        }
+	public static class ChatAdaptor extends RecyclerView.Adapter<ChatAdaptor.ChatViewHolder> {
 
-        public static class ChatViewHolder extends RecyclerView.ViewHolder {
+		private final Context context;
 
-            public TextView tv_message;
+		private final ArrayList<String> messages;
 
-            public ChatViewHolder(View itemView) {
-                super(itemView);
+		public ChatAdaptor(Context context) {
+			this.context = context;
+			messages = new ArrayList<>(Arrays.asList("m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10"));
+		}
 
-                tv_message = itemView.findViewById(R.id.tv_message_bubble);
+		@Override
+		public int getItemCount() {
+			return messages.size();
+		}
 
-            }
+		@NonNull
+		@Override
+		public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			Context context = parent.getContext();
+			int layoutItem = R.layout.message_bubble;
+			LayoutInflater inflater = LayoutInflater.from(context);
+			boolean attachImmedietly = false;
 
-        }
+			View view = inflater.inflate(layoutItem, parent, attachImmedietly);
+			ChatViewHolder cv = new ChatViewHolder(view);
 
-    }
+			return cv;
+		}
 
+		@Override
+		public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
+			String m = messages.get(position);
 
+			holder.tv_message.setText(m);
+		}
 
+		public static class ChatViewHolder extends RecyclerView.ViewHolder {
+
+			public TextView tv_message;
+
+			public ChatViewHolder(View itemView) {
+				super(itemView);
+
+				tv_message = itemView.findViewById(R.id.tv_message_bubble);
+
+			}
+
+		}
+
+	}
 
 }

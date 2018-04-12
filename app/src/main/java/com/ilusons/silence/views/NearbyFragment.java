@@ -49,6 +49,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.ilusons.silence.ConversationActivity;
 import com.ilusons.silence.R;
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.User;
@@ -249,6 +250,23 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 				.title(DB.getCurrentUserId(context))
 				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 		googleMapMarkerForMe.showInfoWindow();
+
+		googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+			@Override
+			public boolean onMarkerClick(Marker marker) {
+				if (marker.getTag() != null)
+					try {
+						User user = (User) marker.getTag();
+
+						Intent intent = new Intent(getContext(), ConversationActivity.class);
+						intent.putExtra(ConversationActivity.KEY_PEER_USER_ID, user.Id);
+						getContext().startActivity(intent);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				return false;
+			}
+		});
 
 		resetMap();
 	}

@@ -173,6 +173,13 @@ public final class DB {
 		return geoQueryForAllUsers;
 	}
 
+	public final static String KEY_MESSAGES = "messages";
+	public final static String KEY_MESSAGES_SENDER_ID = "sender_id";
+	public final static String KEY_MESSAGES_RECEIVER_ID = "receiver_id";
+	public final static String KEY_MESSAGES_CONTENT = "content";
+	public final static String KEY_MESSAGES_TIMESTAMP = "timestamp";
+
+
 	//endregion
 
 }
