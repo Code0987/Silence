@@ -15,16 +15,23 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.ilusons.silence.data.DB;
+import com.ilusons.silence.data.Message;
 import com.ilusons.silence.data.User;
 import com.ilusons.silence.views.ConversationsFragment;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ConversationActivity extends AppCompatActivity {
 
@@ -33,6 +40,9 @@ public class ConversationActivity extends AppCompatActivity {
 	private String peerUserId;
 
 	Toolbar toolbar;
+
+	private EditText content;
+	private Button send;
 
 	RecyclerView rc_view;
 	ChatAdaptor chatAdaptor;
@@ -67,7 +77,7 @@ public class ConversationActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 
 		// Get intent data
-		if (getIntent().getAction() != null) {
+		if (getIntent() != null) {
 			peerUserId = getIntent().getStringExtra(KEY_PEER_USER_ID);
 		}
 
@@ -78,11 +88,57 @@ public class ConversationActivity extends AppCompatActivity {
 
 		setContentView(R.layout.activity_conversation);
 
-		toolbar = (Toolbar) findViewById(R.id.toolBarChat);
+		// Setup toolbar
+		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+
+		getSupportActionBar().setTitle(null);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-		//getSupportActionBar().setIcon(R.drawable.user_avatar_256);
-		getSupportActionBar().setTitle(peerUserId);
+		getSupportActionBar().setHomeButtonEnabled(true);
+
+		// Setup send
+		content = findViewById(R.id.content);
+		send = findViewById(R.id.send);
+
+		send.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if (content.getText().length() <= 0)
+					return;
+
+				final Context context = view.getContext();
+
+				Message m = new Message();
+				m.SenderId = DB.getCurrentUserId(context);
+				m.ReceiverId = peerUserId;
+				m.Content = content.getText().toString();
+				m.Timestamp = System.currentTimeMillis();
+
+				content.getText().clear();
+
+				HashMap<Object, Object> values = new HashMap<>();
+				values.put(DB.KEY_MESSAGES_SENDER_ID, m.SenderId);
+				values.put(DB.KEY_MESSAGES_RECEIVER_ID, m.ReceiverId);
+				values.put(DB.KEY_MESSAGES_CONTENT, m.Content);
+				values.put(DB.KEY_MESSAGES_TIMESTAMP, m.Timestamp);
+
+				Toast.makeText(getApplicationContext(), "Sending ...", Toast.LENGTH_LONG).show();
+
+				DB.getFirebaseDatabase().getReference()
+						.child(DB.KEY_MESSAGES)
+						.push()
+						.setValue(values, new DatabaseReference.CompletionListener() {
+							@Override
+							public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+								if (databaseError == null) {
+									Toast.makeText(getApplicationContext(), "Sent!", Toast.LENGTH_LONG).show();
+								}
+							}
+						});
+			}
+		});
+
+		// Setup messages
 
 		rc_view = (RecyclerView) findViewById(R.id.rv_message_list);
 		LinearLayoutManager layoutManager = new LinearLayoutManager(this);

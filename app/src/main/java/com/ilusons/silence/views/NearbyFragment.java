@@ -211,7 +211,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 	private GoogleMap googleMap;
 
-	private Marker googleMapMarkerForMe;
+	//private Marker googleMapMarkerForMe;
 	private HashMap<String, Marker> googleMapMarkers = new HashMap<>();
 
 	@SuppressLint("MissingPermission")
@@ -224,32 +224,32 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 			return;
 
 		try {
-			googleMap.setMyLocationEnabled(false);
+			googleMap.setMyLocationEnabled(true);
 		} catch (SecurityException e) {
 			Log.e(TAG, "setMyLocationEnabled", e);
 		}
-		googleMap.setBuildingsEnabled(false);
-		googleMap.setIndoorEnabled(false);
-		googleMap.setTrafficEnabled(false);
-		googleMap.getUiSettings().setAllGesturesEnabled(false);
-		googleMap.getUiSettings().setCompassEnabled(false);
-		googleMap.getUiSettings().setIndoorLevelPickerEnabled(false);
-		googleMap.getUiSettings().setMapToolbarEnabled(false);
-		googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-		googleMap.getUiSettings().setRotateGesturesEnabled(false);
+		googleMap.setBuildingsEnabled(true);
+		googleMap.setIndoorEnabled(true);
+		googleMap.setTrafficEnabled(true);
+		googleMap.getUiSettings().setAllGesturesEnabled(true);
+		googleMap.getUiSettings().setCompassEnabled(true);
+		googleMap.getUiSettings().setIndoorLevelPickerEnabled(true);
+		googleMap.getUiSettings().setMapToolbarEnabled(true);
+		googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+		googleMap.getUiSettings().setRotateGesturesEnabled(true);
 		googleMap.getUiSettings().setScrollGesturesEnabled(true);
-		googleMap.getUiSettings().setTiltGesturesEnabled(false);
-		googleMap.getUiSettings().setZoomControlsEnabled(false);
-		googleMap.getUiSettings().setZoomGesturesEnabled(false);
+		googleMap.getUiSettings().setTiltGesturesEnabled(true);
+		googleMap.getUiSettings().setZoomControlsEnabled(true);
+		googleMap.getUiSettings().setZoomGesturesEnabled(true);
 
 		final Location location = DB.getCurrentUserLocation(context);
 		LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
 		lastLocation = loc;
-		googleMapMarkerForMe = googleMap.addMarker(new MarkerOptions()
-				.position(loc)
-				.title(DB.getCurrentUserId(context))
-				.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-		googleMapMarkerForMe.showInfoWindow();
+		//googleMapMarkerForMe = googleMap.addMarker(new MarkerOptions()
+		//		.position(loc)
+		//		.title(DB.getCurrentUserId(context))
+		//		.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+		//googleMapMarkerForMe.showInfoWindow();
 
 		googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 			@Override
@@ -329,8 +329,32 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		}
 
 		@Override
-		public void onKeyMoved(String key, GeoLocation location) {
+		public void onKeyMoved(String key, final GeoLocation location) {
+			if (key.equals(DB.getCurrentUserId(getContext())))
+				return;
 
+			DB.getUser(
+					key,
+					new JavaEx.ActionT<User>() {
+						@Override
+						public void execute(final User user) {
+							getActivity().runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									removeUser(user);
+									addUser(user, location);
+
+									Toast.makeText(getContext(), user.Id + " moved!", Toast.LENGTH_LONG).show();
+								}
+							});
+						}
+					},
+					new JavaEx.ActionT<Throwable>() {
+						@Override
+						public void execute(Throwable throwable) {
+
+						}
+					});
 		}
 
 		@Override
@@ -430,9 +454,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 			DB.setCurrentUserLocation(context, location);
 
-			if (googleMapMarkerForMe != null) {
-				googleMapMarkerForMe.setPosition(lastLocation);
-			}
+			//if (googleMapMarkerForMe != null) {
+			//	googleMapMarkerForMe.setPosition(lastLocation);
+			//}
 
 			resetMap();
 
@@ -493,12 +517,12 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 		if (count >= 1) {
 			googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
-			googleMap.animateCamera(CameraUpdateFactory.zoomTo(9));
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(7));
 		} else {
 			LatLngBounds.Builder b = new LatLngBounds.Builder().include(lastLocation);
 			googleMap.setLatLngBoundsForCameraTarget(b.build());
 			googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(b.build(), 100));
-			googleMap.animateCamera(CameraUpdateFactory.zoomTo(9));
+			googleMap.animateCamera(CameraUpdateFactory.zoomTo(7));
 		}
 	}
 

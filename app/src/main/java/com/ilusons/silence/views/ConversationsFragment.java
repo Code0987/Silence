@@ -17,6 +17,8 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.ilusons.silence.R;
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.Message;
@@ -59,6 +61,18 @@ public class ConversationsFragment extends Fragment {
 
 		adapter = new ItemsAdapter(getContext());
 
+		ValueEventListener valueEventListener = new ValueEventListener() {
+			@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				adapter.addData(DB.getCurrentUserId(getContext()), Message.createFromData(dataSnapshot));
+			}
+
+			@Override
+			public void onCancelled(DatabaseError databaseError) {
+
+			}
+		};
+
 		ChildEventListener childEventListener = new ChildEventListener() {
 			@Override
 			public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -86,17 +100,19 @@ public class ConversationsFragment extends Fragment {
 			}
 		};
 
-		DB.getFirebaseDatabase().getReference()
+		Query query1 = DB.getFirebaseDatabase().getReference()
 				.child(DB.KEY_MESSAGES)
 				.orderByChild(DB.KEY_MESSAGES_RECEIVER_ID)
-				.equalTo(DB.KEY_MESSAGES_RECEIVER_ID, DB.getCurrentUserId(getContext()))
-				.addChildEventListener(childEventListener);
+				.equalTo(DB.KEY_MESSAGES_RECEIVER_ID, DB.getCurrentUserId(getContext()));
+		query1.addListenerForSingleValueEvent(valueEventListener);
+		query1.addChildEventListener(childEventListener);
 
-		DB.getFirebaseDatabase().getReference()
+		Query query2 = DB.getFirebaseDatabase().getReference()
 				.child(DB.KEY_MESSAGES)
 				.orderByChild(DB.KEY_MESSAGES_SENDER_ID)
-				.equalTo(DB.KEY_MESSAGES_SENDER_ID, DB.getCurrentUserId(getContext()))
-				.addChildEventListener(childEventListener);
+				.equalTo(DB.KEY_MESSAGES_SENDER_ID, DB.getCurrentUserId(getContext()));
+		query2.addListenerForSingleValueEvent(valueEventListener);
+		query2.addChildEventListener(childEventListener);
 
 		recycler_view.setAdapter(adapter);
 
