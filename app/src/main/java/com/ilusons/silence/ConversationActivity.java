@@ -51,15 +51,9 @@ public class ConversationActivity extends AppCompatActivity {
 	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
 		super.onSaveInstanceState(outState, outPersistentState);
 
-<<<<<<< HEAD
-        rc_view= (RecyclerView) findViewById(R.id.rv_message_list);
-       LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-       layoutManager.setStackFromEnd(true);
-=======
 		outState.putString(KEY_PEER_USER_ID, peerUserId);
 		outPersistentState.putString(KEY_PEER_USER_ID, peerUserId);
 	}
->>>>>>> updated db
 
 	@Override
 	public void onRestoreInstanceState(Bundle savedInstanceState, PersistableBundle persistentState) {
@@ -142,7 +136,7 @@ public class ConversationActivity extends AppCompatActivity {
 
 		rc_view = (RecyclerView) findViewById(R.id.rv_message_list);
 		LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-
+		layoutManager.setStackFromEnd(true);
 		rc_view.setLayoutManager(layoutManager);
 
 		rc_view.setHasFixedSize(true);
