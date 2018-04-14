@@ -62,6 +62,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+/***
+ * Handles location related work.
+ * Shows map of nearby users.
+ * Sends current location updates of current user to cloud.
+ */
 public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 	private final String TAG = NearbyFragment.class.getName();
@@ -435,6 +440,11 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		}
 	}
 
+	/***
+	 * Current location of device is updated.
+	 * Post it to cloud database, also save it locally.
+	 * @param location
+	 */
 	private void onNewLocation(Location location) {
 		if (location != null) {
 			Log.i(TAG, "position: " + location.getLatitude() + ", " + location.getLongitude() + " accuracy: " + location.getAccuracy());
@@ -464,6 +474,11 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		}
 	}
 
+	/***
+	 * Add new user in current nearby address to map.
+	 * @param user
+	 * @param geoLocation
+	 */
 	public void addUser(User user, GeoLocation geoLocation) {
 		try {
 			LatLng latLng = new LatLng(geoLocation.latitude, geoLocation.longitude);
@@ -486,6 +501,10 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		}
 	}
 
+	/***
+	 * Remove user from nearby map.
+	 * @param user
+	 */
 	public void removeUser(User user) {
 		if (googleMap == null)
 			return;
@@ -501,6 +520,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		resetMap();
 	}
 
+	/***
+	 * Updated changes to map.
+	 */
 	public void resetMap() {
 		if (googleMap == null)
 			return;
