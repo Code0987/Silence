@@ -5,6 +5,9 @@ import com.ilusons.silence.ref.RandomEx;
 import java.util.Arrays;
 import java.util.UUID;
 
+/***
+ * Java Object mapping of a user's data.
+ */
 public class User {
 
 	public String Id;

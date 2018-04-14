@@ -29,6 +29,7 @@ public final class DB {
 
 	//region Firebase db
 
+	
 	public static FirebaseDatabase getFirebaseDatabase() {
 		return FirebaseDatabase.getInstance();
 	}

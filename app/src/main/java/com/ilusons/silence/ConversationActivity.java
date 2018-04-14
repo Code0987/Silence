@@ -33,6 +33,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/***
+ * Activity for single peer-to-peer conversation i.e. chatting.
+ * Shows all the previous messages and allows to send new message.
+ */
 public class ConversationActivity extends AppCompatActivity {
 
 	public final static String KEY_PEER_USER_ID = "peer_user_id";
