@@ -373,6 +373,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		}
 	};
 
+	/***
+	 * Create location api client.
+	 */
 	@SuppressLint("MissingPermission")
 	private void createLocationUpdates() {
 		fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getContext());
@@ -401,6 +404,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 
 	}
 
+	/***
+	 * Call location api to start publishing updated of current location changes.
+	 */
 	public void requestLocationUpdates() {
 		try {
 			LocationRequest locationRequest = LocationRequest.create();
@@ -413,6 +419,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 			Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
 		}
 
+		// Start listening changes in cloud database.
 		try {
 			DB.getGeoQueryForAllUsers().removeGeoQueryEventListener(geoQueryEventListener);
 		} catch (Exception e) {
@@ -425,6 +432,9 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		}
 	}
 
+	/***
+	 * Stop location updates.
+	 */
 	public void removeLocationUpdates() {
 		Log.i(TAG, "Removing location updates");
 		try {
