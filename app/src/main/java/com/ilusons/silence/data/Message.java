@@ -2,6 +2,9 @@ package com.ilusons.silence.data;
 
 import com.google.firebase.database.DataSnapshot;
 
+/***
+ * Java Object mapping of a single message data.
+ */
 public class Message {
 
 	public String SenderId;
@@ -13,6 +16,11 @@ public class Message {
 		Timestamp = System.currentTimeMillis();
 	}
 
+	/***
+	 * Converts JSON data to Java Object.
+	 * @param data
+	 * @return
+	 */
 	public static Message createFromData(DataSnapshot data) {
 		Message m = new Message();
 

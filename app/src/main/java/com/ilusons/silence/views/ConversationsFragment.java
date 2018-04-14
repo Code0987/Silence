@@ -29,6 +29,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/***
+ * Lists all the conversations related to current user.
+ */
 public class ConversationsFragment extends Fragment {
 
 	private View view;
