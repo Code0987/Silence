@@ -29,7 +29,10 @@ public final class DB {
 
 	//region Firebase db
 
-	
+	/***
+	 * Gets the current instance of cloud database client.
+	 * @return
+	 */
 	public static FirebaseDatabase getFirebaseDatabase() {
 		return FirebaseDatabase.getInstance();
 	}
@@ -69,6 +72,11 @@ public final class DB {
 
 	public static String TAG_SPREF_CURRENT_USER_ID = "current_user_id";
 
+	/***
+	 * Gets current user id or creates a new one if not exists.
+	 * @param context
+	 * @return
+	 */
 	public static String getCurrentUserId(final Context context) {
 		String userId = getSharedPreferences(context).getString(TAG_SPREF_CURRENT_USER_ID, null);
 		if (TextUtils.isEmpty(userId)) {
@@ -88,6 +96,11 @@ public final class DB {
 
 	public static String TAG_SPREF_CURRENT_USER_LOCATION = "current_user_location";
 
+	/***
+	 * Gets the user's last known location.
+	 * @param context
+	 * @return
+	 */
 	public static Location getCurrentUserLocation(final Context context) {
 		float lat = getSharedPreferences(context).getFloat(TAG_SPREF_CURRENT_USER_LOCATION + "_lat", 0);
 		float lng = getSharedPreferences(context).getFloat(TAG_SPREF_CURRENT_USER_LOCATION + "_lng", 0);
@@ -110,6 +123,12 @@ public final class DB {
 	public final static String KEY_USERS = "users";
 	public final static String KEY_USERS_LAST_ACCESSED = "last_accessed";
 
+	/***
+	 * Gets the user data from cloud database or creates new if not exists.
+	 * @param id
+	 * @param onUser
+	 * @param onError
+	 */
 	public static void getUser(final String id, final JavaEx.ActionT<User> onUser, final JavaEx.ActionT<Throwable> onError) {
 		try {
 			getFirebaseDatabase().getReference()
@@ -149,6 +168,12 @@ public final class DB {
 		}
 	}
 
+	/***
+	 * Publishes the location of specific user to cloud database.
+	 * @param context
+	 * @param userId
+	 * @param location
+	 */
 	public static void setUserLocation(Context context, String userId, Location location) {
 		GeoLocation geoLocation = new GeoLocation(location.getLatitude(), location.getLongitude());
 
