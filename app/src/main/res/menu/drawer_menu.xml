@@ -5,9 +5,10 @@
         android:title="Clear Data"
         android:icon="@drawable/ic_padlock" />
 
+    <!--
     <item android:id="@+id/menu_item_snooze"
         android:title="Snooze"
-        android:icon="@drawable/ic_clock" />
+        android:icon="@drawable/ic_clock" />-->
 
     <item android:id="@+id/menu_item_exit"
         android:title="Exit"
