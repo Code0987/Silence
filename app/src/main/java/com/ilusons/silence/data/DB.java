@@ -143,6 +143,7 @@ public final class DB {
 
 								User user = new User();
 								user.Id = id;
+								user.LastAccessed = System.currentTimeMillis();
 
 								if (onUser != null)
 									onUser.execute(user);

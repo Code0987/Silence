@@ -1,5 +1,6 @@
 package com.ilusons.silence.data;
 
+import com.firebase.geofire.GeoLocation;
 import com.ilusons.silence.ref.RandomEx;
 
 import java.util.Arrays;
@@ -11,6 +12,10 @@ import java.util.UUID;
 public class User {
 
 	public String Id;
+
+	public GeoLocation Location;
+
+	public long LastAccessed;
 
 	public User() {
 		Id = RandomEx.generateRandomString("_", Arrays.asList(RandomEx.COOL_WORDS, RandomEx.COLORS));

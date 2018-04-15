@@ -31,6 +31,7 @@ import com.ilusons.silence.ref.IOEx;
 import com.ilusons.silence.ref.JavaEx;
 import com.ilusons.silence.views.ConversationsFragment;
 import com.ilusons.silence.views.NearbyFragment;
+import com.ilusons.silence.views.NearbyUsersFragment;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 		view_pager.setOffscreenPageLimit(3);
 
 		view_pager_adapter = new StaticFragmentPagerAdapter(getSupportFragmentManager(), this);
-		view_pager_adapter.add(new NearbyFragment(), "Nearby");
+		view_pager_adapter.add(new NearbyUsersFragment(), "Nearby");
 		view_pager_adapter.add(new ConversationsFragment(), "Conversations");
 
 		view_pager.setAdapter(view_pager_adapter);
