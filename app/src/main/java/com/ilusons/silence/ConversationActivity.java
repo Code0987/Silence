@@ -222,6 +222,9 @@ public class ConversationActivity extends AppCompatActivity {
 
 	}
 
+	/* NOT NOW
+
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
@@ -249,6 +252,8 @@ public class ConversationActivity extends AppCompatActivity {
 
 		return super.onOptionsItemSelected(item);
 	}
+
+	*/
 
 	public static class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
 		private final Context context;
