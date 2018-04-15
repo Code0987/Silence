@@ -7,6 +7,7 @@ import com.google.firebase.database.DataSnapshot;
  */
 public class Message {
 
+	public String Id;
 	public String SenderId;
 	public String ReceiverId;
 	public String Content;
@@ -14,6 +15,22 @@ public class Message {
 
 	public Message() {
 		Timestamp = System.currentTimeMillis();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		Message other = (Message) obj;
+
+		if (other == null)
+			return false;
+
+		if (Id.equals(other.Id))
+			return true;
+
+		if (Long.compare(Timestamp, other.Timestamp) == 0)
+			return true;
+
+		return false;
 	}
 
 	/***
@@ -24,6 +41,11 @@ public class Message {
 	public static Message createFromData(DataSnapshot data) {
 		Message m = new Message();
 
+		try {
+			m.Id = data.getKey();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		try {
 			m.SenderId = (String) data.child(DB.KEY_MESSAGES_SENDER_ID).getValue();
 		} catch (Exception e) {

@@ -246,6 +246,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		googleMap.getUiSettings().setTiltGesturesEnabled(true);
 		googleMap.getUiSettings().setZoomControlsEnabled(true);
 		googleMap.getUiSettings().setZoomGesturesEnabled(true);
+		googleMap.setMaxZoomPreference(7);
+		googleMap.setMinZoomPreference(7);
 
 		final Location location = DB.getCurrentUserLocation(context);
 		LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());

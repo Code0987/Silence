@@ -1,6 +1,7 @@
 package com.ilusons.silence.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -19,9 +20,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.ilusons.silence.ConversationActivity;
 import com.ilusons.silence.R;
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.Message;
+import com.ilusons.silence.data.User;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,7 +71,10 @@ public class ConversationsFragment extends Fragment {
 		ValueEventListener valueEventListener = new ValueEventListener() {
 			@Override
 			public void onDataChange(DataSnapshot dataSnapshot) {
-				adapter.addData(DB.getCurrentUserId(getContext()), Message.createFromData(dataSnapshot));
+				if (dataSnapshot.exists())
+					for (DataSnapshot child : dataSnapshot.getChildren()) {
+						adapter.addData(DB.getCurrentUserId(getContext()), Message.createFromData(child));
+					}
 			}
 
 			@Override
@@ -106,14 +113,14 @@ public class ConversationsFragment extends Fragment {
 		Query query1 = DB.getFirebaseDatabase().getReference()
 				.child(DB.KEY_MESSAGES)
 				.orderByChild(DB.KEY_MESSAGES_RECEIVER_ID)
-				.equalTo(DB.KEY_MESSAGES_RECEIVER_ID, DB.getCurrentUserId(getContext()));
+				.equalTo(DB.getCurrentUserId(getContext()));
 		query1.addListenerForSingleValueEvent(valueEventListener);
 		query1.addChildEventListener(childEventListener);
 
 		Query query2 = DB.getFirebaseDatabase().getReference()
 				.child(DB.KEY_MESSAGES)
 				.orderByChild(DB.KEY_MESSAGES_SENDER_ID)
-				.equalTo(DB.KEY_MESSAGES_SENDER_ID, DB.getCurrentUserId(getContext()));
+				.equalTo(DB.getCurrentUserId(getContext()));
 		query2.addListenerForSingleValueEvent(valueEventListener);
 		query2.addChildEventListener(childEventListener);
 
@@ -156,7 +163,22 @@ public class ConversationsFragment extends Fragment {
 
 			vh.id.setText(item.first);
 
-			vh.info.setText(item.second.size());
+			vh.info.setText("#" + item.second.size());
+
+			Picasso.get().load(User.getAvatarUrl(item.first)).into(vh.image);
+
+			vh.view.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					try {
+						Intent intent = new Intent(view.getContext(), ConversationActivity.class);
+						intent.putExtra(ConversationActivity.KEY_PEER_USER_ID, item.first);
+						view.getContext().startActivity(intent);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
 
 		}
 
@@ -168,10 +190,10 @@ public class ConversationsFragment extends Fragment {
 			public TextView id;
 			public TextView info;
 
-			public ItemViewHolder(View itemView) {
-				super(itemView);
+			public ItemViewHolder(View view) {
+				super(view);
 
-				view = itemView;
+				this.view = view;
 
 				image = view.findViewById(R.id.image);
 				id = view.findViewById(R.id.id);
@@ -198,8 +220,10 @@ public class ConversationsFragment extends Fragment {
 				items.add(itemMatched);
 			}
 
-			if (myId.equals(data.SenderId) || myId.equals(data.ReceiverId))
-				itemMatched.second.add(data);
+			if (myId.equals(data.SenderId) || myId.equals(data.ReceiverId)) {
+				if (!itemMatched.second.contains(data))
+					itemMatched.second.add(data);
+			}
 
 			notifyDataSetChanged();
 		}

@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								Picasso.get().load(user.getAvatarUrl()).into(user_avatar_drawer);
+								Picasso.get().load(User.getAvatarUrl(user.Id)).into(user_avatar_drawer);
 							}
 						});
 					}
@@ -117,13 +117,6 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		return super.onOptionsItemSelected(item);
-	}
-
-	//Just for testing UI
-	public void openChatActivity(View view) {
-		Intent openChat = new Intent(this, ConversationActivity.class);
-
-		startActivity(openChat);
 	}
 
 	//region Classes

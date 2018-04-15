@@ -3,7 +3,6 @@ package com.ilusons.silence;
 import android.content.Context;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,19 +17,23 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.Message;
 import com.ilusons.silence.data.User;
-import com.ilusons.silence.views.ConversationsFragment;
+import com.ilusons.silence.ref.TimeEx;
+import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 /***
@@ -42,14 +45,6 @@ public class ConversationActivity extends AppCompatActivity {
 	public final static String KEY_PEER_USER_ID = "peer_user_id";
 
 	private String peerUserId;
-
-	Toolbar toolbar;
-
-	private EditText content;
-	private Button send;
-
-	RecyclerView rc_view;
-	ChatAdaptor chatAdaptor;
 
 	@Override
 	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
@@ -69,6 +64,12 @@ public class ConversationActivity extends AppCompatActivity {
 			peerUserId = persistentState.getString(KEY_PEER_USER_ID);
 
 	}
+
+	private EditText content;
+	private Button send;
+
+	private RecyclerView recycler_view;
+	private MessagesAdapter adapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -137,35 +138,92 @@ public class ConversationActivity extends AppCompatActivity {
 		});
 
 		// Setup messages
-
-		rc_view = (RecyclerView) findViewById(R.id.rv_message_list);
+		recycler_view = findViewById(R.id.recycler_view);
 		LinearLayoutManager layoutManager = new LinearLayoutManager(this);
 		layoutManager.setStackFromEnd(true);
-		rc_view.setLayoutManager(layoutManager);
+		recycler_view.setLayoutManager(layoutManager);
+		recycler_view.setHasFixedSize(true);
 
-		rc_view.setHasFixedSize(true);
+		adapter = new MessagesAdapter(this);
 
-		chatAdaptor = new ChatAdaptor(this);
+		recycler_view.setAdapter(adapter);
 
-		rc_view.setAdapter(chatAdaptor);
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		ValueEventListener valueEventListener = new ValueEventListener() {
+			@Override
+			public void onDataChange(DataSnapshot dataSnapshot) {
+				if (dataSnapshot.exists())
+					for (DataSnapshot child : dataSnapshot.getChildren()) {
+						adapter.addItem(Message.createFromData(child));
+					}
+			}
+
+			@Override
+			public void onCancelled(DatabaseError databaseError) {
+
+			}
+		};
+
+		ChildEventListener childEventListener = new ChildEventListener() {
+			@Override
+			public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+				adapter.addItem(Message.createFromData(dataSnapshot));
+			}
+
+			@Override
+			public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+			}
+
+			@Override
+			public void onChildRemoved(DataSnapshot dataSnapshot) {
+				adapter.removeItem(Message.createFromData(dataSnapshot));
+			}
+
+			@Override
+			public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+			}
+
+			@Override
+			public void onCancelled(DatabaseError databaseError) {
+
+			}
+		};
+
+		Query query1 = DB.getFirebaseDatabase().getReference()
+				.child(DB.KEY_MESSAGES)
+				.orderByChild(DB.KEY_MESSAGES_RECEIVER_ID)
+				.equalTo(DB.getCurrentUserId(this));
+		query1.addListenerForSingleValueEvent(valueEventListener);
+		query1.addChildEventListener(childEventListener);
+
+		Query query2 = DB.getFirebaseDatabase().getReference()
+				.child(DB.KEY_MESSAGES)
+				.orderByChild(DB.KEY_MESSAGES_SENDER_ID)
+				.equalTo(DB.getCurrentUserId(this));
+		query2.addListenerForSingleValueEvent(valueEventListener);
+		query2.addChildEventListener(childEventListener);
 
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-
 		MenuInflater inflater = getMenuInflater();
 
 		inflater.inflate(R.menu.chat_menu, menu);
+
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-
 		int itemId = item.getItemId();
-
-		//Just for testing
 
 		switch (itemId) {
 			case R.id.action_delete_chat:
@@ -179,59 +237,97 @@ public class ConversationActivity extends AppCompatActivity {
 				finish();
 		}
 
-		//Delete after testing
-
 		return super.onOptionsItemSelected(item);
 	}
 
-	public static class ChatAdaptor extends RecyclerView.Adapter<ChatAdaptor.ChatViewHolder> {
-
+	public static class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
 		private final Context context;
 
-		private final ArrayList<String> messages;
+		private final ArrayList<Message> items;
 
-		public ChatAdaptor(Context context) {
+		private final String myUserId;
+
+		public MessagesAdapter(Context context) {
 			this.context = context;
-			messages = new ArrayList<>(Arrays.asList("m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10"));
+
+			items = new ArrayList<>();
+
+			myUserId = DB.getCurrentUserId(context);
 		}
 
 		@Override
 		public int getItemCount() {
-			return messages.size();
+			return items.size();
 		}
 
 		@NonNull
 		@Override
-		public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			Context context = parent.getContext();
-			int layoutItem = R.layout.message_bubble;
-			LayoutInflater inflater = LayoutInflater.from(context);
-			boolean attachImmedietly = false;
 
-			View view = inflater.inflate(layoutItem, parent, attachImmedietly);
-			ChatViewHolder cv = new ChatViewHolder(view);
+			View view = LayoutInflater.from(context).inflate(R.layout.conversation_item, parent, false);
 
-			return cv;
+			ViewHolder vh = new ViewHolder(view);
+
+			return vh;
 		}
 
 		@Override
-		public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-			String m = messages.get(position);
+		public void onBindViewHolder(@NonNull ViewHolder vh, int position) {
+			final Message item = items.get(position);
 
-			holder.tv_message.setText(m);
+			vh.info.setText(TimeEx.getTimeAgo(item.Timestamp));
+
+			vh.content.setText(item.Content);
+
+			Picasso.get().load(User.getAvatarUrl(item.SenderId)).into(vh.image);
+
+			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) vh.wrapper.getLayoutParams();
+			if (item.SenderId.equals(myUserId)) {
+				lp.removeRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			} else {
+				lp.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			}
+			vh.wrapper.setLayoutParams(lp);
 		}
 
-		public static class ChatViewHolder extends RecyclerView.ViewHolder {
+		public static class ViewHolder extends RecyclerView.ViewHolder {
 
-			public TextView tv_message;
+			public View view;
 
-			public ChatViewHolder(View itemView) {
-				super(itemView);
+			public View wrapper;
+			public ImageView image;
+			public TextView info;
+			public TextView content;
 
-				tv_message = itemView.findViewById(R.id.tv_message_bubble);
+			public ViewHolder(View view) {
+				super(view);
+
+				this.view = view;
+
+				wrapper = view.findViewById(R.id.wrapper);
+				image = view.findViewById(R.id.image);
+				info = view.findViewById(R.id.info);
+				content = view.findViewById(R.id.content);
 
 			}
 
+		}
+
+		public void addItem(Message newItem) {
+			if (!items.contains(newItem))
+				items.add(newItem);
+
+			notifyDataSetChanged();
+		}
+
+		public void removeItem(Message newItem) {
+			if (items.contains(newItem))
+				items.remove(newItem);
+
+			notifyDataSetChanged();
 		}
 
 	}
