@@ -1,8 +1,10 @@
 package com.ilusons.silence;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
