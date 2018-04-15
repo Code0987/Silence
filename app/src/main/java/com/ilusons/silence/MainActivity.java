@@ -1,7 +1,10 @@
 package com.ilusons.silence;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -11,6 +14,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -18,9 +22,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ilusons.silence.data.DB;
 import com.ilusons.silence.data.User;
+import com.ilusons.silence.ref.AndroidEx;
+import com.ilusons.silence.ref.IOEx;
 import com.ilusons.silence.ref.JavaEx;
 import com.ilusons.silence.views.ConversationsFragment;
 import com.ilusons.silence.views.NearbyFragment;
@@ -32,6 +39,7 @@ import java.util.Vector;
 public class MainActivity extends AppCompatActivity {
 
 	private DrawerLayout drawer_layout;
+	private NavigationView navigation_view;
 	private ActionBarDrawerToggle actionBarDrawerToggle;
 
 	private ViewPager view_pager;
@@ -59,6 +67,23 @@ public class MainActivity extends AppCompatActivity {
 		actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawer_layout, R.string.open, R.string.close);
 		drawer_layout.addDrawerListener(actionBarDrawerToggle);
 		actionBarDrawerToggle.syncState();
+
+		navigation_view = findViewById(R.id.navigation_view);
+		navigation_view.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+			@Override
+			public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+				switch (item.getItemId()) {
+					case R.id.menu_item_clear:
+						resetData();
+						return true;
+					case R.id.menu_item_exit:
+						finish();
+						System.exit(0);
+						return true;
+				}
+				return false;
+			}
+		});
 
 		// Setup tabs
 		view_pager = findViewById(R.id.view_pager);
@@ -117,6 +142,36 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void resetData() {
+		(new AlertDialog.Builder(this)
+				.setTitle("Sure?")
+				.setMessage("App will become like new, all your personalized content will be lost!")
+				.setCancelable(true)
+				.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int i) {
+						try {
+							Toast.makeText(MainActivity.this, "Reset initiated! App will restart in a moment!", Toast.LENGTH_LONG).show();
+
+							IOEx.deleteCache(getApplicationContext());
+
+							((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE)).clearApplicationUserData();
+						} catch (Exception e) {
+							e.printStackTrace();
+						} finally {
+							AndroidEx.restartApp(MainActivity.this);
+						}
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialogInterface, int i) {
+						dialogInterface.dismiss();
+					}
+				}))
+				.show();
 	}
 
 	//region Classes
