@@ -297,8 +297,6 @@ public class ConversationActivity extends AppCompatActivity {
 
 			vh.content.setText(item.Content);
 
-			Picasso.get().load(User.getAvatarUrl(item.SenderId)).into(vh.image);
-
 			RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) vh.wrapper.getLayoutParams();
 			if (item.SenderId.equals(myUserId)) {
 				lp.removeRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -317,7 +315,6 @@ public class ConversationActivity extends AppCompatActivity {
 			public View view;
 
 			public View wrapper;
-			public ImageView image;
 			public TextView info;
 			public TextView content;
 
@@ -327,7 +324,6 @@ public class ConversationActivity extends AppCompatActivity {
 				this.view = view;
 
 				wrapper = view.findViewById(R.id.wrapper);
-				image = view.findViewById(R.id.image);
 				info = view.findViewById(R.id.info);
 				content = view.findViewById(R.id.content);
 
