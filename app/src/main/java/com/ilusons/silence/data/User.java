@@ -30,7 +30,7 @@ public class User {
 	}
 
 	public static String getAvatarUrl(String name) {
-		return "https://ui-avatars.com/api/?size=128&rounded=true&name=" + name;
+		return "https://ui-avatars.com/api/?size=128&background=5B5A62&color=eee&rounded=true&name=" + name;
 	}
 
 }
