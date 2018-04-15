@@ -34,6 +34,8 @@ import com.ilusons.silence.ref.TimeEx;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /***
@@ -121,16 +123,14 @@ public class ConversationActivity extends AppCompatActivity {
 				values.put(DB.KEY_MESSAGES_CONTENT, m.Content);
 				values.put(DB.KEY_MESSAGES_TIMESTAMP, m.Timestamp);
 
-				Toast.makeText(getApplicationContext(), "Sending ...", Toast.LENGTH_LONG).show();
-
 				DB.getFirebaseDatabase().getReference()
 						.child(DB.KEY_MESSAGES)
 						.push()
 						.setValue(values, new DatabaseReference.CompletionListener() {
 							@Override
 							public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-								if (databaseError == null) {
-									Toast.makeText(getApplicationContext(), "Sent!", Toast.LENGTH_LONG).show();
+								if (databaseError != null) {
+									Toast.makeText(getApplicationContext(), "Send FAILED!", Toast.LENGTH_LONG).show();
 								}
 							}
 						});
@@ -161,6 +161,9 @@ public class ConversationActivity extends AppCompatActivity {
 					for (DataSnapshot child : dataSnapshot.getChildren()) {
 						adapter.addItem(Message.createFromData(child));
 					}
+
+				if (recycler_view != null)
+					recycler_view.smoothScrollToPosition(recycler_view.getAdapter().getItemCount() - 1);
 			}
 
 			@Override
@@ -173,6 +176,9 @@ public class ConversationActivity extends AppCompatActivity {
 			@Override
 			public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 				adapter.addItem(Message.createFromData(dataSnapshot));
+
+				if (recycler_view != null)
+					recycler_view.smoothScrollToPosition(recycler_view.getAdapter().getItemCount() - 1);
 			}
 
 			@Override
@@ -183,6 +189,9 @@ public class ConversationActivity extends AppCompatActivity {
 			@Override
 			public void onChildRemoved(DataSnapshot dataSnapshot) {
 				adapter.removeItem(Message.createFromData(dataSnapshot));
+
+				if (recycler_view != null)
+					recycler_view.smoothScrollToPosition(recycler_view.getAdapter().getItemCount() - 1);
 			}
 
 			@Override
@@ -319,6 +328,13 @@ public class ConversationActivity extends AppCompatActivity {
 		public void addItem(Message newItem) {
 			if (!items.contains(newItem))
 				items.add(newItem);
+
+			Collections.sort(items, new Comparator<Message>() {
+				@Override
+				public int compare(Message l, Message r) {
+					return Long.compare(l.Timestamp, r.Timestamp);
+				}
+			});
 
 			notifyDataSetChanged();
 		}

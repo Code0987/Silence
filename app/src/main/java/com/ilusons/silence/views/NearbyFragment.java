@@ -138,7 +138,7 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		switch (requestCode) {
 			case REQUEST_GOOGLE_PLAY_SERVICES:
 				if (resultCode == Activity.RESULT_OK) {
-					Toast.makeText(getContext(), "Connected to Google Play services :)", Toast.LENGTH_LONG).show();
+
 				}
 				break;
 
@@ -293,8 +293,6 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 								@Override
 								public void run() {
 									addUser(user, location);
-
-									Toast.makeText(getContext(), user.Id + " is near you!", Toast.LENGTH_LONG).show();
 								}
 							});
 						}
@@ -321,8 +319,6 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 								@Override
 								public void run() {
 									removeUser(user);
-
-									Toast.makeText(getContext(), user.Id + " has gone away!", Toast.LENGTH_LONG).show();
 								}
 							});
 						}
@@ -350,8 +346,6 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 								public void run() {
 									removeUser(user);
 									addUser(user, location);
-
-									Toast.makeText(getContext(), user.Id + " moved!", Toast.LENGTH_LONG).show();
 								}
 							});
 						}
