@@ -306,6 +306,8 @@ public class ConversationActivity extends AppCompatActivity {
 			} else {
 				lp.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				vh.wrapper.setBackground(new ColorDrawable(ContextCompat.getColor(context, R.color.colorWhite)));
+				vh.content.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
 			}
 			vh.wrapper.setLayoutParams(lp);
 		}
