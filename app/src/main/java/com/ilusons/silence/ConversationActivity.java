@@ -166,7 +166,7 @@ public class ConversationActivity extends AppCompatActivity {
 					}
 
 				if (recycler_view != null)
-					recycler_view.smoothScrollToPosition(recycler_view.getAdapter().getItemCount() - 1);
+					recycler_view.smoothScrollToPosition(Math.max(0, recycler_view.getAdapter().getItemCount() - 1));
 			}
 
 			@Override
@@ -181,7 +181,7 @@ public class ConversationActivity extends AppCompatActivity {
 				adapter.addItem(Message.createFromData(dataSnapshot));
 
 				if (recycler_view != null)
-					recycler_view.smoothScrollToPosition(recycler_view.getAdapter().getItemCount() - 1);
+					recycler_view.smoothScrollToPosition(Math.max(0, recycler_view.getAdapter().getItemCount() - 1));
 			}
 
 			@Override
@@ -194,7 +194,7 @@ public class ConversationActivity extends AppCompatActivity {
 				adapter.removeItem(Message.createFromData(dataSnapshot));
 
 				if (recycler_view != null)
-					recycler_view.smoothScrollToPosition(recycler_view.getAdapter().getItemCount() - 1);
+					recycler_view.smoothScrollToPosition(Math.max(0, recycler_view.getAdapter().getItemCount() - 1));
 			}
 
 			@Override
