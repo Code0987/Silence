@@ -93,7 +93,7 @@ public class ConversationActivity extends AppCompatActivity {
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
-		getSupportActionBar().setTitle(null);
+		getSupportActionBar().setTitle(peerUserId);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 		getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -143,6 +143,7 @@ public class ConversationActivity extends AppCompatActivity {
 		layoutManager.setStackFromEnd(true);
 		recycler_view.setLayoutManager(layoutManager);
 		recycler_view.setHasFixedSize(true);
+		recycler_view.setItemViewCacheSize(7);
 
 		adapter = new MessagesAdapter(this);
 
