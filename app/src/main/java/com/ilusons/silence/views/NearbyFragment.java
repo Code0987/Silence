@@ -412,7 +412,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 			locationRequest.setFastestInterval((long) 3000 / 2);
 			locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-			fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+			if (fusedLocationProviderClient != null)
+				fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
 		} catch (SecurityException unlikely) {
 			Log.e(TAG, "Lost location permission. Could not request updates. " + unlikely);
 		}
@@ -436,7 +437,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 	public void removeLocationUpdates() {
 		Log.i(TAG, "Removing location updates");
 		try {
-			fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+			if (fusedLocationProviderClient != null)
+				fusedLocationProviderClient.removeLocationUpdates(locationCallback);
 		} catch (SecurityException unlikely) {
 			Log.e(TAG, "Lost location permission. Could not remove updates. " + unlikely);
 		}
