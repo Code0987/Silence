@@ -304,7 +304,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 						public void execute(Throwable throwable) {
 
 						}
-					});
+					},
+					false);
 		}
 
 		@Override
@@ -330,7 +331,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 						public void execute(Throwable throwable) {
 
 						}
-					});
+					},
+					false);
 		}
 
 		@Override
@@ -357,7 +359,8 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 						public void execute(Throwable throwable) {
 
 						}
-					});
+					},
+					false);
 		}
 
 		@Override

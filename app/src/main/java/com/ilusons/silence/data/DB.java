@@ -129,7 +129,7 @@ public final class DB {
 	 * @param onUser
 	 * @param onError
 	 */
-	public static void getUser(final String id, final JavaEx.ActionT<User> onUser, final JavaEx.ActionT<Throwable> onError) {
+	public static void getUser(final String id, final JavaEx.ActionT<User> onUser, final JavaEx.ActionT<Throwable> onError, final boolean updateLastAccessed) {
 		try {
 			getFirebaseDatabase().getReference()
 					.child(KEY_USERS)
@@ -139,11 +139,21 @@ public final class DB {
 						@Override
 						public Transaction.Result doTransaction(MutableData mutableData) {
 							try {
-								mutableData.setValue(ServerValue.TIMESTAMP);
+								if (updateLastAccessed || mutableData.getValue() == null)
+									mutableData.setValue(ServerValue.TIMESTAMP);
 
 								User user = new User();
 								user.Id = id;
-								user.LastAccessed = System.currentTimeMillis();
+								if (mutableData.getValue() == null)
+									user.LastAccessed = System.currentTimeMillis();
+								else
+									try {
+										user.LastAccessed = Long.parseLong(mutableData.getValue().toString());
+									} catch (Exception e) {
+										e.printStackTrace();
+
+										user.LastAccessed = System.currentTimeMillis();
+									}
 
 								if (onUser != null)
 									onUser.execute(user);

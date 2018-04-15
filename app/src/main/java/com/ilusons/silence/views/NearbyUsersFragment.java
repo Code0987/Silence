@@ -119,6 +119,8 @@ public class NearbyUsersFragment extends Fragment {
 
 		adapter = new ItemsAdapter(getContext());
 
+		recycler_view.setAdapter(adapter);
+
 		checkRequirements();
 	}
 
@@ -225,7 +227,6 @@ public class NearbyUsersFragment extends Fragment {
 							getActivity().runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									user.Location = location;
 									adapter.addItem(user);
 								}
 							});
@@ -236,7 +237,8 @@ public class NearbyUsersFragment extends Fragment {
 						public void execute(Throwable throwable) {
 
 						}
-					});
+					},
+					false);
 		}
 
 		@Override
@@ -262,7 +264,8 @@ public class NearbyUsersFragment extends Fragment {
 						public void execute(Throwable throwable) {
 
 						}
-					});
+					},
+					false);
 		}
 
 		@Override
@@ -279,7 +282,6 @@ public class NearbyUsersFragment extends Fragment {
 								@Override
 								public void run() {
 									if (adapter != null) {
-										user.Location = location;
 										adapter.removeItem(user);
 										adapter.addItem(user);
 									}
@@ -292,7 +294,8 @@ public class NearbyUsersFragment extends Fragment {
 						public void execute(Throwable throwable) {
 
 						}
-					});
+					},
+					false);
 		}
 
 		@Override

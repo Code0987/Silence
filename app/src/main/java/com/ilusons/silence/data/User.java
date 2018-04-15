@@ -13,8 +13,6 @@ public class User {
 
 	public String Id;
 
-	public GeoLocation Location;
-
 	public long LastAccessed;
 
 	public User() {
