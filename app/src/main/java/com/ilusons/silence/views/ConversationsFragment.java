@@ -214,7 +214,7 @@ public class ConversationsFragment extends Fragment {
 
 			if (itemMatched == null) {
 				itemMatched = Pair.create(
-						data.SenderId,
+						myId.equals(data.SenderId) ? data.ReceiverId : data.SenderId,
 						new ArrayList<Message>());
 
 				items.add(itemMatched);
