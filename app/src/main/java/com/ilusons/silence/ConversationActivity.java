@@ -301,10 +301,14 @@ public class ConversationActivity extends AppCompatActivity {
 			if (item.SenderId.equals(myUserId)) {
 				lp.removeRule(RelativeLayout.ALIGN_PARENT_LEFT);
 				lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+				vh.wrapper.setBackgroundColor(ContextCompat.getColor(context, R.color.colorAccent));
+				vh.content.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
 			} else {
 				lp.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 				lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-				vh.wrapper.setBackground(new ColorDrawable(ContextCompat.getColor(context, R.color.colorWhite)));
+
+				vh.wrapper.setBackgroundColor(ContextCompat.getColor(context, R.color.colorWhite));
 				vh.content.setTextColor(ContextCompat.getColor(context, R.color.colorAccent));
 			}
 			vh.wrapper.setLayoutParams(lp);

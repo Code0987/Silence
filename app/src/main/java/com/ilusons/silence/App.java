@@ -40,8 +40,6 @@ public class App extends Application {
 		try {
 			Picasso.Builder builder = new Picasso.Builder(this);
 			Picasso picasso = builder.build();
-			picasso.setIndicatorsEnabled(true);
-			picasso.setLoggingEnabled(true);
 			Picasso.setSingletonInstance(picasso);
 		} catch (Exception e) {
 			e.printStackTrace();
