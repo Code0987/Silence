@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -244,10 +245,11 @@ public class NearbyFragment extends Fragment implements OnMapReadyCallback {
 		googleMap.getUiSettings().setRotateGesturesEnabled(true);
 		googleMap.getUiSettings().setScrollGesturesEnabled(true);
 		googleMap.getUiSettings().setTiltGesturesEnabled(true);
-		googleMap.getUiSettings().setZoomControlsEnabled(true);
-		googleMap.getUiSettings().setZoomGesturesEnabled(true);
+		googleMap.getUiSettings().setZoomControlsEnabled(false);
+		googleMap.getUiSettings().setZoomGesturesEnabled(false);
 		googleMap.setMaxZoomPreference(7);
 		googleMap.setMinZoomPreference(7);
+		googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.mapstyle));
 
 		final Location location = DB.getCurrentUserLocation(context);
 		LatLng loc = new LatLng(location.getLatitude(), location.getLongitude());
