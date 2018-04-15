@@ -147,7 +147,7 @@ public class ConversationActivity extends AppCompatActivity {
 		recycler_view.setHasFixedSize(true);
 		recycler_view.setItemViewCacheSize(7);
 
-		adapter = new MessagesAdapter(this);
+		adapter = new MessagesAdapter(this, peerUserId);
 
 		recycler_view.setAdapter(adapter);
 
@@ -262,13 +262,15 @@ public class ConversationActivity extends AppCompatActivity {
 
 		private final ArrayList<Message> items;
 
+		private final String peerUserId;
 		private final String myUserId;
 
-		public MessagesAdapter(Context context) {
+		public MessagesAdapter(Context context, String peerUserId) {
 			this.context = context;
 
 			items = new ArrayList<>();
 
+			this.peerUserId = peerUserId;
 			myUserId = DB.getCurrentUserId(context);
 		}
 
@@ -336,8 +338,11 @@ public class ConversationActivity extends AppCompatActivity {
 		}
 
 		public void addItem(Message newItem) {
-			if (!items.contains(newItem))
-				items.add(newItem);
+			if (!items.contains(newItem)) {
+				if (myUserId.equals(newItem.SenderId) && peerUserId.equals(newItem.ReceiverId)
+						|| myUserId.equals(newItem.ReceiverId) && peerUserId.equals(newItem.SenderId))
+					items.add(newItem);
+			}
 
 			Collections.sort(items, new Comparator<Message>() {
 				@Override
