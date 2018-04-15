@@ -224,38 +224,17 @@ public class ConversationActivity extends AppCompatActivity {
 
 	}
 
-	/* NOT NOW
-
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-
-		inflater.inflate(R.menu.chat_menu, menu);
-
-		return true;
-	}
-
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int itemId = item.getItemId();
 
 		switch (itemId) {
-			case R.id.action_delete_chat:
-				Toast.makeText(this, "Delete chat bro", Toast.LENGTH_LONG).show();
-				break;
-			case R.id.action_block:
-				Toast.makeText(this, "Block this nibba", Toast.LENGTH_LONG).show();
-				break;
-
 			case android.R.id.home:
 				finish();
 		}
 
 		return super.onOptionsItemSelected(item);
 	}
-
-	*/
 
 	public static class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder> {
 		private final Context context;
