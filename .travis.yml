@@ -35,7 +35,6 @@ android:
 
 before_install:
     - 'mkdir "$ANDROID_HOME/licenses" || true'
-    - 'yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses'
     - 'yes | $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-$ANDROID_API"'
     - 'chmod +x gradlew'
     - './gradlew dependencies || true'
