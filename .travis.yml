@@ -21,6 +21,7 @@ android:
     components:
         - tools
         - platform-tools
+        - tools
         - build-tools-$ANDROID_BUILD_TOOLS
         - android-$ANDROID_API
         - extra-google-m2repository
@@ -35,6 +36,7 @@ android:
 before_install:
     - 'mkdir "$ANDROID_HOME/licenses" || true'
     - 'yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses'
+    - 'yes | $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-$ANDROID_API"'
     - 'chmod +x gradlew'
     - './gradlew dependencies || true'
 
