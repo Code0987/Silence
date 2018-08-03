@@ -1,46 +1,68 @@
 apply plugin: 'com.android.application'
 
+def isTravisCI = System.getenv('TRAVIS') ? true : false
+def keyStoreKey = hasProperty('KEYSTORE_KEY') ? KEYSTORE_KEY : System.getenv('KEYSTORE_KEY')
+
 android {
-    compileSdkVersion 27
-    defaultConfig {
-        applicationId "com.ilusons.silence"
-        minSdkVersion 21
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
+	signingConfigs {
+		config {
+			keyAlias keyStoreKey
+			keyPassword keyStoreKey
+			storeFile file("$rootDir/res/keys/keystore.jks")
+			storePassword keyStoreKey
+		}
+	}
+	compileSdkVersion 27
+	defaultConfig {
+		applicationId "com.ilusons.silence"
+		minSdkVersion 21
+		targetSdkVersion 27
+		versionCode 1
+		versionName "1.0"
+		testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+		multiDexEnabled true
+	}
+	buildTypes {
+		debug {
+			versionNameSuffix '-debug'
+		}
+		if (isTravisCI) {
+			release {
+				minifyEnabled true
+				proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+				versionNameSuffix '-release'
+				signingConfig signingConfigs.config
+				debuggable true
+				jniDebuggable false
+				renderscriptDebuggable false
+				zipAlignEnabled true
+			}
+		}
+	}
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.0'
-    implementation 'com.android.support:mediarouter-v7:27.1.0'
-    implementation 'com.android.support:support-core-utils:27.1.0'
-    implementation 'com.android.support:design:27.1.0'
-    implementation 'com.android.support:palette-v7:27.1.0'
-    implementation 'com.android.support:percent:27.1.0'
-    implementation 'com.android.support:recyclerview-v7:27.1.0'
-    implementation 'com.android.support:cardview-v7:27.1.0'
-    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.google.firebase:firebase-core:12.0.1'
-    implementation 'com.google.firebase:firebase-database:12.0.1'
-    implementation 'com.firebaseui:firebase-ui-database:2.1.0'
-    implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'com.google.code.gson:gson:2.8.2'
-    implementation 'com.google.android.gms:play-services-location:12.0.1'
-    implementation 'com.google.android.gms:play-services:12.0.1'
-    implementation 'com.firebase:geofire-android:2.3.1'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	implementation 'com.android.support:appcompat-v7:27.1.0'
+	implementation 'com.android.support:mediarouter-v7:27.1.0'
+	implementation 'com.android.support:support-core-utils:27.1.0'
+	implementation 'com.android.support:design:27.1.0'
+	implementation 'com.android.support:palette-v7:27.1.0'
+	implementation 'com.android.support:percent:27.1.0'
+	implementation 'com.android.support:recyclerview-v7:27.1.0'
+	implementation 'com.android.support:cardview-v7:27.1.0'
+	implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+	implementation 'com.google.firebase:firebase-core:12.0.1'
+	implementation 'com.google.firebase:firebase-database:12.0.1'
+	implementation 'com.firebaseui:firebase-ui-database:2.1.0'
+	implementation 'com.squareup.picasso:picasso:2.71828'
+	implementation 'com.google.code.gson:gson:2.8.2'
+	implementation 'com.google.android.gms:play-services-location:12.0.1'
+	implementation 'com.google.android.gms:play-services:12.0.1'
+	implementation 'com.firebase:geofire-android:2.3.1'
+	testImplementation 'junit:junit:4.12'
+	androidTestImplementation 'com.android.support.test:runner:1.0.1'
+	androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
