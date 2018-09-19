@@ -32,7 +32,7 @@ android {
 				// proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 				versionNameSuffix '-release'
 				signingConfig signingConfigs.config
-				debuggable true
+				debuggable false
 				jniDebuggable false
 				renderscriptDebuggable false
 				zipAlignEnabled true
