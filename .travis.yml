@@ -1,49 +1,46 @@
 language: android
 sudo: required
 jdk: oraclejdk8
-
 before_cache:
-    - 'rm -f $HOME/.gradle/caches/modules-2/modules-2.lock'
-    - 'rm -fr $HOME/.gradle/caches/*/plugin-resolution/'
-
+- rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
-    directories:
-        - $HOME/.gradle/caches/
-        - $HOME/.gradle/wrapper/
-
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 env:
-    global:
-        - ANDROID_API=27
-        - ANDROID_BUILD_TOOLS=26.0.2
-        - ADB_INSTALL_TIMEOUT=5
-        - secure: lZsDEMm7YbnvcCXg/JNGW1TT3v2sXfXuoh7m9AC48ITnQJEWQpgAsMU5K4hSvArO//2yCQL/H3V+/5Jfp1CC/iS84lHfbeRJxbGsSJDOFgtAKNoFNbguV8UDY1pyWhJQy3+vm+zjCFQFTkPmEtmYPMhWD4M/GP81gRvxW/WnXEWMYy4C3dcA1RSBW3LM6TrF+nJGh51QlLFFU0zcmEz/iE/7ysXhpn/N/o3rIl/YQQv2o9iBWT/D7gMRepUsMREeUU3QmCpRSNdQVqy31edjcBbS802mhuITXG8iZc6T+LSptHXODBCTaZY1usol5b+csL1XhfyQrktdrNp9owj/WLLf/3PIU7JPPCWQrfWBqAQguMCMlFLk2qM1tnLNUEfH1gXq+Zv9qpbpWI/YfSu7oa3FWDTO3xAYY1A0TMTyvpw1PB/QSPqsbtF1s8Hmuelw0ne5GN/E8/zje3uFdGbcXes74w6vTyr5MTteqIJKqs5owVj9K7vF1k0abXiQnXCwMORsuzh3h/e8MoqfKY+z2UR098CytcDmN2eyy+jfM9k/mjC07HuIbLoFa9r/oBPIKnDtWGRMBjWJy8fwm7Qcwu0JeE4yfd5HkE6XY5XC8LndQ8Gp04AWLkLOllFCU27nq21CF6h4R9hZxt4UTbg4sWfKx4LfbX0VVvi226yGG7U=
-
+  global:
+  - ANDROID_API=27
+  - ANDROID_BUILD_TOOLS=26.0.2
+  - ADB_INSTALL_TIMEOUT=5
+  - secure: lZsDEMm7YbnvcCXg/JNGW1TT3v2sXfXuoh7m9AC48ITnQJEWQpgAsMU5K4hSvArO//2yCQL/H3V+/5Jfp1CC/iS84lHfbeRJxbGsSJDOFgtAKNoFNbguV8UDY1pyWhJQy3+vm+zjCFQFTkPmEtmYPMhWD4M/GP81gRvxW/WnXEWMYy4C3dcA1RSBW3LM6TrF+nJGh51QlLFFU0zcmEz/iE/7ysXhpn/N/o3rIl/YQQv2o9iBWT/D7gMRepUsMREeUU3QmCpRSNdQVqy31edjcBbS802mhuITXG8iZc6T+LSptHXODBCTaZY1usol5b+csL1XhfyQrktdrNp9owj/WLLf/3PIU7JPPCWQrfWBqAQguMCMlFLk2qM1tnLNUEfH1gXq+Zv9qpbpWI/YfSu7oa3FWDTO3xAYY1A0TMTyvpw1PB/QSPqsbtF1s8Hmuelw0ne5GN/E8/zje3uFdGbcXes74w6vTyr5MTteqIJKqs5owVj9K7vF1k0abXiQnXCwMORsuzh3h/e8MoqfKY+z2UR098CytcDmN2eyy+jfM9k/mjC07HuIbLoFa9r/oBPIKnDtWGRMBjWJy8fwm7Qcwu0JeE4yfd5HkE6XY5XC8LndQ8Gp04AWLkLOllFCU27nq21CF6h4R9hZxt4UTbg4sWfKx4LfbX0VVvi226yGG7U=
 android:
-    components:
-        - tools
-        - platform-tools
-        - tools
-        - build-tools-$ANDROID_BUILD_TOOLS
-        - android-$ANDROID_API
-        - extra-google-m2repository
-        - extra-android-m2repository
-        - addon-google_apis-google-19
-
-    licenses:
-        - android-sdk-preview-license-.+
-        - android-sdk-license-.+
-        - google-gdk-license-.+
-
+  components:
+  - tools
+  - platform-tools
+  - tools
+  - build-tools-$ANDROID_BUILD_TOOLS
+  - android-$ANDROID_API
+  - extra-google-m2repository
+  - extra-android-m2repository
+  - addon-google_apis-google-19
+  licenses:
+  - android-sdk-preview-license-.+
+  - android-sdk-license-.+
+  - google-gdk-license-.+
 before_install:
-    - 'mkdir "$ANDROID_HOME/licenses" || true'
-    - 'yes | $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-$ANDROID_API"'
-    - 'yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS"'
-    - 'chmod +x gradlew'
-    - './gradlew dependencies || true'
-
+- openssl aes-256-cbc -K $encrypted_4c49ad0f6949_key -iv $encrypted_4c49ad0f6949_iv
+  -in keystore.jks.enc -out res\\keys\\keystore.jks -d
+- openssl aes-256-cbc -K $encrypted_4c49ad0f6949_key -iv $encrypted_4c49ad0f6949_iv
+  -in silence-play-console-publisher-key.json.enc -out res\\keys\\silence-play-console-publisher-key.json
+  -d
+- mkdir "$ANDROID_HOME/licenses" || true
+- yes | $ANDROID_HOME/tools/bin/sdkmanager "platforms;android-$ANDROID_API"
+- yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;$ANDROID_BUILD_TOOLS"
+- chmod +x gradlew
+- "./gradlew dependencies || true"
 script:
-    - './gradlew clean build -PdisablePreDex --stacktrace'
-
+- "./gradlew clean build -PdisablePreDex --stacktrace"
 deploy:
   provider: releases
   skip_cleanup: true
@@ -51,7 +48,7 @@ deploy:
   api_key:
     secure: SjH9zozfAqWedYCcuZRleZyNLiCMcVbr26AdG9ufFv9dyM9vI8WEs6Ju26l2pCTfkZZduOMTwpBke12IZKXxN0JRp+nmhfG1MuzJhhUXbbLdHJ9Of3yDtFGstQVdZ0O5pR42nDPl1T/iYiH6A7lUY3/uLUTVRj6fygbLcStxHU8LQqbYL+6SPoAVdlbGM8A0LShXXiYuRprnFDAHnsx/UO5OowimVgAsnXWr/kflZsOPXNG86AJPqVnFCxj725f5ehp0Wm2bnOaCf2vhaGQ8niCHCj9bBVIP6CIPtVG2ePxQ804B1833d0fNdHD2PY3C33X6z+CMzOP7gMOS4T5Q7L+B6H3kEjgYM5z61PWdrDN3S7vmDyMPYQy+GU6COU70EypG4ahnI7Wi8kHb99YGSQ2xnjhqejXqzOfj1U12vOrBGpeH1JcxDSfHod4B9OURunSTRxxFAgQ2GZE6wt3iDuWRwp5LaWonlc1fb1zeN5c4sVOSkXxOOWp+YZaKSypdQSi3WFlPidH/pjPPNJMDCYZT9XtKgdKxaRCkQAZVC35MVO+/+bo07ya2ssVSy/A4M3K6Or4YJ0NzOIfladwKpRz308bRef5uUVXWsh2A267FfawcnJUB1IenlxSG2QpQ5lVrZEA5lx4M6oFRrfeljPe/W2+X3aeLXoPRyv2lro8=
   file_glob: true
-  file: /home/travis/build/Code0987/Silence/app/build/outputs/apk/release/*
+  file: "/home/travis/build/Code0987/Silence/app/build/outputs/apk/release/*"
   on:
     repo: Code0987/Silence
     tags: true
