@@ -51,4 +51,4 @@ deploy:
   file: "/home/travis/build/Code0987/Silence/app/build/outputs/apk/release/*"
   on:
     repo: Code0987/Silence
-    tags: true
+    tags: true 
